@@ -1,0 +1,12 @@
+{
+  "name": "japan-stamp-collector",
+  "version": "0.0.1",
+  "description": "日本風景印爬虫与 CloudBase 迁移",
+  "private": true,
+  "scripts": {
+    "migrate": "python3 etl/cloudbase_migrate.py"
+  },
+  "dependencies": {
+    "@cloudbase/node-sdk": "^3.4.0"
+  }
+}
