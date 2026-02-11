@@ -1,10 +1,14 @@
 import datetime
 from typing import Optional
 
-from core.database import db_manager
+from core.database import etl_db_manager
+from models.base import BaseModel
 
 
-class Task:
+class Task(BaseModel):
+    _table_name = "task"
+    _columns = ["task_type", "owner", "last_update", "start_time", "end_time"]
+    _db_manager = etl_db_manager
     
     def __init__(self, **kwargs):
         self.id = kwargs.get('id')
@@ -14,24 +18,24 @@ class Task:
         self.start_time = kwargs.get('start_time')
         self.end_time = kwargs.get('end_time')
 
-    @classmethod
-    def from_db(cls, row: tuple) -> 'Task':
-        if not row:
-            return None
+    # @classmethod
+    # def from_db(cls, row: tuple) -> 'Task':
+    #     if not row:
+    #         return None
 
-        columns = ['id', 'task_type', 'owner', 'last_update', 'start_time', 'end_time']
-        data = dict(zip(columns, row))
-        return cls(**data)
+    #     columns = ['id', 'task_type', 'owner', 'last_update', 'start_time', 'end_time']
+    #     data = dict(zip(columns, row))
+    #     return cls(**data)
 
     @classmethod
-    def get_task_by_id(cls, task_id: int) -> 'Task':
+    def get_by_id(cls, task_id: int) -> 'Task':
         if not task_id:
             return None
 
         query = "SELECT * FROM task WHERE id = %s"
         params = (task_id, )
 
-        row = db_manager.execute_query(query, params, fetch_one=True)
+        row = cls.get_db_manager().execute_query(query, params, fetch_one=True)
         task = cls.from_db(row)
         return task
 
@@ -42,7 +46,7 @@ class Task:
 
         query = "SELECT * FROM task WHERE task_type = %s and owner = %s"
         params = (task_type, owner)
-        row = db_manager.execute_query(query, params, fetch_one=True)
+        row = cls.get_db_manager().execute_query(query, params, fetch_one=True)
         task = cls.from_db(row)
         return task
 
@@ -55,7 +59,7 @@ class Task:
             query = "SELECT * FROM task ORDER BY last_update LIMIT 1"
             params = ()
 
-        row = db_manager.execute_query(query, params, fetch_one=True)
+        row = cls.get_db_manager().execute_query(query, params, fetch_one=True)
         task = cls.from_db(row)
         return task
 
@@ -66,25 +70,25 @@ class Task:
 
         query = "UPDATE task SET last_update = %s WHERE id = %s"
         params = (last_update, task_id)
-        db_manager.execute_query(query, params)
+        cls.get_db_manager().execute_query(query, params)
 
-    def save(self) -> None:
-        if self.id:
-            self._update()
-        else:
-            self._insert()
+    # def save(self) -> None:
+    #     if self.id:
+    #         self._update()
+    #     else:
+    #         self._insert()
 
-    def _insert(self) -> None:
-        query = "INSERT INTO task (task_type, owner, last_update, start_time, end_time) VALUES (%s, %s, %s, %s, %s)"
-        params = (self.task_type, self.owner, self.last_update, self.start_time, self.end_time)
+    # def _insert(self) -> None:
+    #     query = "INSERT INTO task (task_type, owner, last_update, start_time, end_time) VALUES (%s, %s, %s, %s, %s)"
+    #     params = (self.task_type, self.owner, self.last_update, self.start_time, self.end_time)
 
-        self.id = db_manager.execute_query(query, params)
+    #     self.id = db_manager.execute_query(query, params)
     
-    def _update(self) -> None:
-        query = "UPDATE task SET task_type = %s, owner = %s, last_update = %s, start_time = %s, end_time = %s WHERE id = %s"
-        params = (self.task_type, self.owner, self.last_update, self.start_time, self.end_time, self.id)
+    # def _update(self) -> None:
+    #     query = "UPDATE task SET task_type = %s, owner = %s, last_update = %s, start_time = %s, end_time = %s WHERE id = %s"
+    #     params = (self.task_type, self.owner, self.last_update, self.start_time, self.end_time, self.id)
 
-        self.id = db_manager.execute_query(query, params)
+    #     self.id = db_manager.execute_query(query, params)
 
     
 
