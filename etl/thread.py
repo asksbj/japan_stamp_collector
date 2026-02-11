@@ -4,7 +4,7 @@ import time
 import datetime
 
 from typing import Optional
-from models.task import Task
+from etl.models import Task
 
 logging.basicConfig(level=logging.INFO)
 

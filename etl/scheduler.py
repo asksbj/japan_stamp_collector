@@ -7,7 +7,7 @@ import time
 from typing import final
 
 from etl.thread import TaskThread
-from models.task import Task
+from etl.models import Task
 
 logging.basicConfig(level=logging.INFO)
 
