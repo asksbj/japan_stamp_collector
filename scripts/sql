@@ -1,0 +1,11 @@
+CREATE DATABASE IF NOT EXISTS task_schedular;
+USE task_schedular;
+
+CREATE TABLE IF NOT EXISTS task (
+    id INT AUTO_INCREMENT PRIMARY KEY, 
+    task_type VARCHAR(64) NOT NULL, 
+    owner  VARCHAR(64) NOT NULL, 
+    last_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    start_time TIMESTAMP,  
+    end_time TIMESTAMP 
+)
