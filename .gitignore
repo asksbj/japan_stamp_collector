@@ -214,5 +214,5 @@ __marimo__/
 CLAUDE.md
 rules/
 
-# CloudBase 迁移生成的临时文档（可重新生成）
-etl/cloudbase_migrate_docs.json
+docs/
+
