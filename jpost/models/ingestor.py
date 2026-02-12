@@ -13,7 +13,6 @@ class FukeIngestorRecords(BaseModel):
     class StateEnum(Enum):
         # Fuke ingest enums
 
-        INITED = 'inited'
         BASIC = 'basic'
         DETAILED = 'detailed'
         LOCATRED = 'located'
@@ -22,10 +21,9 @@ class FukeIngestorRecords(BaseModel):
     def __init__(self, **kwargs):
         self.id = kwargs.get('id')
         self.owner = kwargs.get('owner')
-        self.state = kwargs.get('state') or self.StateEnum.INITED
+        self.state = kwargs.get('state')
         self.date = kwargs.get('date')
-        self.created_time = kwargs.get('created_time') or datetime.datetime.now()
-        self.last_update = kwargs.get('last_update')
+
 
     @classmethod
     def update_status(cls, record_id: str, original_state: str, new_state: str):

@@ -12,7 +12,7 @@ from etl.models import Task
 logging.basicConfig(level=logging.INFO)
 
 
-class TaskSchedular:
+class TaskScheduler:
     HEALTH_CHECK_PERIOD_SEC = 30
 
     @classmethod

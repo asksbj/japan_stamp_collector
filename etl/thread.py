@@ -10,22 +10,27 @@ logging.basicConfig(level=logging.INFO)
 
 
 class TaskThread(threading.Thread):
+    TASK_SELECT_RETRYS = 5
+
     def __init__(self, exit_flag, schedular):
         super().__init__()
         self._exit_flag = exit_flag
         self._task_runners = schedular.get_task_runners()
         self._task = None
+        self._retries = 0
 
     def run(self):
         tid = threading.get_ident()
         logging.info(f"Thread {tid} start running")
-        while not self._exit_flag.is_set():
+        while not self._exit_flag.is_set() and self._retries <= self.TASK_SELECT_RETRYS:
             if self._select_task():
                 logging.info(f"{tid} is working on task {self._task.id} for {self._task.owner}")
                 self._run_task()
+                self._retries = 0
             else:
-                logging.debug(f"{tid} is idle...")
+                logging.debug(f"{tid} is idle, retry later")
                 time.sleep(5)
+                self._retries += 1
 
     def keep_alive(self):
         task = self._task
