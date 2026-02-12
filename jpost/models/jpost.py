@@ -2,6 +2,19 @@ from core.database import db_manager
 from models.base import BaseModel
 
 
+class Prefecture(BaseModel):
+    _table_name = "prefecture"
+    _columns = ["name", "full_name", "en_name", "url"]
+    _db_manager = db_manager
+
+    def __init__(self, **kwargs) -> None:
+        self.id = kwargs.get('id')
+        self.name = kwargs.get('name')
+        self.full_name = kwargs.get('full_name')
+        self.en_name = kwargs.get('en_name')
+        self.url = kwargs.get('url')
+
+
 class JPostOffice(BaseModel):
     _table_name = "jpost_office"
     _columns = ["name", "abolition", "prefecture", "city", "address", "latitude", "longtitude", "business_hours"]

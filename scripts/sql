@@ -20,3 +20,13 @@ CREATE TABLE IF NOT EXISTS fuke_ingestor_record (
     created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS prefecture (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(32) NOT NULL,
+    full_name VARCHAR(32) NOT NULL,
+    en_name VARCHAR(32) NOT NULL,
+    url VARCHAR(128)
+);
+
+
