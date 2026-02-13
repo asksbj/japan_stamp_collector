@@ -100,4 +100,4 @@ class BaseModel:
         query = f"SELECT * FROM {cls.get_table_name()}"
         params = ()
 
-        return cls.get_db_manager().execute_query(query, params, fetch_all=True)
+        return cls.get_db_results(query, params)
