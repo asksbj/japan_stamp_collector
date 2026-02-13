@@ -63,10 +63,11 @@ class TaskScheduler:
             if not thread_list:
                 sys.exit("Invalid argument: no threads enabled")
 
-            while True:
+            while thread_list:
                 for thread in thread_list:
                     if not thread.is_alive():
-                        sys.exit("Detect dead thread")
+                        thread_list.remove(thread)
+                        # sys.exit("Detect dead thread")
                     thread.keep_alive()
                 cls.health_check()
                 logging.info(f"Waiting for health check for {cls.HEALTH_CHECK_PERIOD_SEC} seconds")
@@ -79,4 +80,3 @@ class TaskScheduler:
                 thread.join()
                 thread.cleanup()
             logging.critical("All threads exited")
-            time.sleep(36000)

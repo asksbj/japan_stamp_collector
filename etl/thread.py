@@ -29,8 +29,9 @@ class TaskThread(threading.Thread):
                 self._retries = 0
             else:
                 logging.debug(f"{tid} is idle, retry later")
-                time.sleep(5)
+                time.sleep(1)
                 self._retries += 1
+        logging.info(f"No task selected, thread {tid} exits")
 
     def keep_alive(self):
         task = self._task

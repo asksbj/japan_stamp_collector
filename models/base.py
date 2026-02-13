@@ -32,7 +32,7 @@ class BaseModel:
         return f"INSERT INTO {self.get_table_name()} ({columns}) VALUES ({placeholders})"
 
     def _get_update_query(self) -> str:
-        columns = self.get_columns
+        columns = self.get_columns()
         set_clause = ", ".join([f"{col} = %s" for col in columns])
         return f"UPDATE {self.get_table_name()} SET {set_clause} WHERE id = %s"
 
@@ -52,7 +52,8 @@ class BaseModel:
         if not row:
             return None
 
-        data = dict(zip(cls._columns, row))
+        columns = ["id"] + cls._columns
+        data = dict(zip(columns, row))
         return cls(**data)
 
     def save(self) -> None:
