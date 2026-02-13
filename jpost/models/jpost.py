@@ -14,6 +14,16 @@ class Prefecture(BaseModel):
         self.en_name = kwargs.get('en_name')
         self.url = kwargs.get('url')
 
+    def to_en_dict(self):
+        return {
+            self.en_name: {
+                "id": self.id,
+                "full_name": self.full_name,
+                "name": self.name,
+                "url": self.url
+            }
+        }
+
 
 class JPostOffice(BaseModel):
     _table_name = "jpost_office"

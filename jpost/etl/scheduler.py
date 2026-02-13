@@ -1,6 +1,7 @@
 from etl.scheduler import TaskScheduler
 from jpost.etl.datatype import TaskType
-from jpost.etl.ingestor import FukeBasicIngestor, FukeDetailIngestor, PostOfficeLocationIngestor
+from jpost.etl.ingestors.fuke import FukeBasicIngestor, FukeDetailIngestor
+from jpost.etl.ingestors.post_office import PostOfficeLocationIngestor
 
 class JpostTaskScheduler(TaskScheduler):
     TASK_RUNNERS = {

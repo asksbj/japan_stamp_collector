@@ -64,21 +64,3 @@ class BaseIngestor(TaskRunner):
     def _set_ingested(self):
         self._task.date = self._date
         self._task.save()
-
-
-class FukeBasicIngestor(BaseIngestor):
-
-    def fetch(self):
-        pass
-
-
-class FukeDetailIngestor(BaseIngestor):
-
-    def fetch(self):
-        pass
-
-
-class PostOfficeLocationIngestor(BaseIngestor):
-
-    def fetch(self):
-        pass

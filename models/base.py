@@ -73,3 +73,10 @@ class BaseModel:
         params = self._get_values_for_db(include_id=True)
 
         self.get_db_manager().execute_query(query, params)
+
+    @classmethod
+    def get_all(cls):
+        query = f"SELECT * FROM {cls.get_table_name()}"
+        params = ()
+
+        return cls.get_db_manager().execute_query(query, params, fetch_all=True)
