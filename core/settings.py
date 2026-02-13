@@ -16,4 +16,6 @@ FUKE_HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "ja,en;q=0.9",
 }
+DEFAULT_JPOST_REQUEST_TIMEOUT = 30
 DEFAULT_REQUEST_DELAY = 1.0
+REQUEST_DELAY_BEFORE_DOWNLOAD = 0.5

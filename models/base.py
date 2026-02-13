@@ -56,6 +56,15 @@ class BaseModel:
         data = dict(zip(columns, row))
         return cls(**data)
 
+    @classmethod
+    def get_db_results(cls, query: str, params: tuple, fetch_one=False):
+        if fetch_one:
+            row = cls.get_db_manager().execute_query(query, params, fetch_one=True)
+            return cls.from_db(row)
+        else:
+            rows = cls.get_db_manager().execute_query(query, params, fetch_all=True)
+            return [cls.from_db(row) for row in rows]
+
     def save(self) -> None:
         if self.id:
             self._update()
@@ -73,6 +82,18 @@ class BaseModel:
         params = self._get_values_for_db(include_id=True)
 
         self.get_db_manager().execute_query(query, params)
+
+    @classmethod
+    def get_by_id(cls, id: str):
+        if not id:
+            return None
+
+        query = f"SELECT * FROM {cls.get_table_name()} WHERE id = %s"
+        params = (id, )
+
+        # row = cls.get_db_manager().execute_query(query, params, fetch_one=True)
+        # obj = cls.from_db(row)
+        return cls.get_db_results(query, params, fetch_one=True)
 
     @classmethod
     def get_all(cls):

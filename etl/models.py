@@ -18,27 +18,13 @@ class Task(BaseModel):
         self.date = kwargs.get('date')
 
     @classmethod
-    def get_by_id(cls, task_id: int) -> 'Task':
-        if not task_id:
-            return None
-
-        query = "SELECT * FROM task WHERE id = %s"
-        params = (task_id, )
-
-        row = cls.get_db_manager().execute_query(query, params, fetch_one=True)
-        task = cls.from_db(row)
-        return task
-
-    @classmethod
     def get_task_by_type_and_owner(cls, task_type: str, owner: str) -> 'Task':
         if not task_type or not owner:
             return None
 
         query = "SELECT * FROM task WHERE task_type = %s and owner = %s"
         params = (task_type, owner)
-        row = cls.get_db_manager().execute_query(query, params, fetch_one=True)
-        task = cls.from_db(row)
-        return task
+        return cls.get_db_results(query, params, fetch_one=True)
 
     @classmethod
     def get_last_updated(cls, task_type: Optional[str] = None) -> 'Task':
@@ -49,9 +35,7 @@ class Task(BaseModel):
             query = "SELECT * FROM task ORDER BY last_update LIMIT 1"
             params = ()
 
-        row = cls.get_db_manager().execute_query(query, params, fetch_one=True)
-        task = cls.from_db(row)
-        return task
+        return cls.get_db_results(query, params, fetch_one=True)
 
     @classmethod
     def update_last_update(cls, task_id: int, last_update: Optional[datetime.datetime] = datetime.datetime.now()) -> None:
