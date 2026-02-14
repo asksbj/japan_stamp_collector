@@ -32,14 +32,14 @@ class FukeIngestorMixin(object):
         prefecture_dict = {}
 
         prefectures = Prefecture.get_all()
-        for row in prefectures:
-            prefecture = Prefecture.from_db(row)
+        for prefecture in prefectures:
             prefecture_dict.update(prefecture.to_en_dict())
         
         return prefecture_dict
         
 
 class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
+    TASK_TIMEOUT_SECS = 900
 
     @classmethod
     def _parse_stamp_posts(cls, html: str) -> list[dict]:
@@ -66,7 +66,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
             post_office_name = (title_dd.get_text(strip=True) if title_dd else "").strip()
 
             abolition_dd = post.select_one("dd.abolition")
-            abolition = bool(abolition_dd and JPTextEnum.ABOLITION in (abolition_dd.get_text(strip=True) or ""))
+            abolition = bool(abolition_dd and JPTextEnum.ABOLITION.value in (abolition_dd.get_text(strip=True) or ""))
 
             pre_li = post.select_one("li.pre")
             prefecture = (pre_li.get_text(strip=True) if pre_li else "").strip()
@@ -80,6 +80,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
                 "date": date_val,
                 "prefecture": prefecture
             })
+        return stamps
 
     @classmethod
     def _normalize_image_url(cls, img_src: str) -> str:
@@ -108,7 +109,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
         time.sleep(DEFAULT_REQUEST_DELAY)
 
         html = self._fetch_html(url)
-        stamps = self._parse_stamp_posts(html)
+        stamps = self._parse_stamp_posts(html) or []
         for s in stamps:
             if s["detail_id"] not in seen_ids:
                 seen_ids.add(s["detail_id"])
@@ -132,7 +133,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
                     seen_ids.add(s["detail_id"])
                     all_stamps.append(s)
                     added += 1
-            logging.info(f"Finish fetching {self._task.onwer} page {page}: added {len(stamps)} stamps, total stamps {len(all_stamps)}")
+            logging.info(f"Finish fetching {self._task.owner} page {page}: added {len(stamps)} stamps, total stamps {len(all_stamps)}")
             page += 1
 
         return all_stamps
@@ -166,9 +167,9 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
 
     def _crawl_prefecture(self) -> int:
         key = self._task.owner
-        prefecture = self._load_prefectures[key]
+        prefecture = self._load_prefectures()[key]
         url = prefecture.get("url")
-        pref_id = prefecture.get("id")
+        pref_id = prefecture.get("pref_id")
         if not url:
             logging.info(f"Skip prefecture {key}: no url")
             return self.FAILURE
@@ -182,6 +183,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
         stamps = self._collect_all_stamps(url, pref_id)
         if not stamps:
             logging.info(f"Can not collect stamp from page. prefecture={key}, url={url}")
+            return self.FAILURE
 
         records = []
         for s in stamps:
@@ -209,18 +211,20 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
     def fetch(self):
         date = datetime.datetime.now().strftime("%Y-%m-%d")
         ingestor_record = FukeIngestorRecords.get_by_owner_and_date(self._task.owner, date)
-        if ingestor_record and ingestor_record.state != FukeIngestorRecords.StateEnum.CREATED:
+        if ingestor_record and ingestor_record.state != FukeIngestorRecords.StateEnum.CREATED.value:
             logging.info(f"Ingestor record exists. task_type={self._task.task_type}, owner={self._task.owner}, date={date}")
             return self.NO_WORK_TO_DO
 
         if not ingestor_record:
             ingestor_record = FukeIngestorRecords(owner=self._task.owner, date=date)
-            ingestor_record.save()
+            success = ingestor_record.save()
+            if not success:
+                return self.NO_WORK_TO_DO
 
         result = self._crawl_prefecture()
         if result == self.SUCCESS:
             origin_state = ingestor_record.state
-            new_state = FukeIngestorRecords.StateEnum.BASIC
+            new_state = FukeIngestorRecords.StateEnum.BASIC.value
             FukeIngestorRecords.update_state(ingestor_record.id, origin_state, new_state)
         return result
 
