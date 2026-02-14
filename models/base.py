@@ -1,6 +1,8 @@
+import logging
 from typing import List
 
 from core.database import BaseDBManager
+
 
 class BaseModel:
     _table_name: str = None
@@ -58,12 +60,16 @@ class BaseModel:
 
     @classmethod
     def get_db_results(cls, query: str, params: tuple, fetch_one=False):
-        if fetch_one:
-            row = cls.get_db_manager().execute_query(query, params, fetch_one=True)
-            return cls.from_db(row)
-        else:
-            rows = cls.get_db_manager().execute_query(query, params, fetch_all=True)
-            return [cls.from_db(row) for row in rows]
+        try:
+            if fetch_one:
+                row = cls.get_db_manager().execute_query(query, params, fetch_one=True)
+                return cls.from_db(row)
+            else:
+                rows = cls.get_db_manager().execute_query(query, params, fetch_all=True)
+                return [cls.from_db(row) for row in rows] if rows else []
+        except Exception as e:
+            logging.error(f"Fetch db failed: {e}")
+            raise
 
     def save(self) -> None:
         if self.id:

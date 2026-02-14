@@ -22,6 +22,9 @@ from jpost.models.jpost import Prefecture
 from jpost.models.ingestor import FukeIngestorRecords
 
 
+logging.basicConfig(level=logging.INFO)
+
+
 class FukeIngestorMixin(object):
 
     @classmethod
