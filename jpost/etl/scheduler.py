@@ -7,8 +7,8 @@ from jpost.models.jpost import Prefecture
 class JPostTaskScheduler(TaskScheduler):
     TASK_OWNER_RUNNERS = {
         TaskType.INGESTOR_FUKE_BASIC: FukeBasicIngestor,
-        TaskType.INGESTOR_FUKE_DETAIL: FukeDetailIngestor,
-        TaskType.INGESTOR_POST_OFFICE_LOCATION: PostOfficeLocationIngestor
+        # TaskType.INGESTOR_FUKE_DETAIL: FukeDetailIngestor,
+        # TaskType.INGESTOR_POST_OFFICE_LOCATION: PostOfficeLocationIngestor
     }
 
     TASK_GLOBAL_RUNNERS = {}
@@ -24,4 +24,4 @@ class JPostTaskScheduler(TaskScheduler):
         prefectures = Prefecture.get_all()
         for prefecture in prefectures:
             for task_type in cls.TASK_OWNER_RUNNERS:
-                cls.enable_task(task_type, prefecture)
+                cls.enable_task(task_type, prefecture.en_name)

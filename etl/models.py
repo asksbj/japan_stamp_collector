@@ -22,17 +22,17 @@ class Task(BaseModel):
         if not task_type or not owner:
             return None
 
-        query = "SELECT * FROM task WHERE task_type = %s and owner = %s"
+        query = f"SELECT * FROM {cls.get_table_name()} WHERE task_type = %s and owner = %s"
         params = (task_type, owner)
         return cls.get_db_results(query, params, fetch_one=True)
 
     @classmethod
     def get_last_updated(cls, task_type: Optional[str] = None) -> 'Task':
         if task_type:
-            query = "SELECT * FROM task WHERE task_type = %s ORDER BY last_update LIMIT 1"
+            query = f"SELECT * FROM {cls.get_table_name()} WHERE task_type = %s ORDER BY last_update LIMIT 1"
             params = (task_type, )
         else:
-            query = "SELECT * FROM task ORDER BY last_update LIMIT 1"
+            query = f"SELECT * FROM {cls.get_table_name()} ORDER BY last_update LIMIT 1"
             params = ()
 
         return cls.get_db_results(query, params, fetch_one=True)
@@ -42,7 +42,7 @@ class Task(BaseModel):
         if not task_id:
             return None
 
-        query = "UPDATE task SET last_update = %s WHERE id = %s"
+        query = f"UPDATE {cls.get_table_name()} SET last_update = %s WHERE id = %s"
         params = (last_update, task_id)
         cls.get_db_manager().execute_query(query, params)
 
