@@ -1,5 +1,7 @@
+import logging
 import datetime
 from enum import Enum
+from mysql.connector.errors import IntegrityError
 
 from core.database import db_manager
 from models.base import BaseModel
@@ -23,7 +25,7 @@ class FukeIngestorRecords(BaseModel):
     def __init__(self, **kwargs):
         self.id = kwargs.get("id")
         self.owner = kwargs.get("owner")
-        self.state = kwargs.get("state") or self.StateEnum.CREATED
+        self.state = kwargs.get("state") or self.StateEnum.CREATED.value
         self.date = kwargs.get("date")
         self.created_time = kwargs.get("created_time") or datetime.datetime.now()
         self.last_updated = kwargs.get("last_updated")

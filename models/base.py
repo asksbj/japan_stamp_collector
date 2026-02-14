@@ -71,11 +71,16 @@ class BaseModel:
             logging.error(f"Fetch db failed: {e}")
             raise
 
-    def save(self) -> None:
-        if self.id:
-            self._update()
-        else:
-            self._insert()
+    def save(self) -> bool:
+        try:
+            if self.id:
+                self._update()
+            else:
+                self._insert()
+            return True
+        except Exception as e:
+            logging.debug(f"Save record {self.get_table_name()} failed")
+            return False
 
     def _insert(self) -> None:
         query = self._get_insert_query()

@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS fuke_ingestor_record (
     state  VARCHAR(64) NOT NULL, 
     date VARCHAR(32),
     created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_owner_date (owner, date)
 );
 
 CREATE TABLE IF NOT EXISTS prefecture (
@@ -28,5 +29,9 @@ CREATE TABLE IF NOT EXISTS prefecture (
     en_name VARCHAR(32) NOT NULL,
     url VARCHAR(128)
 );
+
+-- If fuke_ingestor_record already exists without uk_owner_date, run (after removing duplicates if any):
+-- USE japan_stamp_collector;
+-- ALTER TABLE fuke_ingestor_record ADD UNIQUE KEY uk_owner_date (owner, date);
 
 

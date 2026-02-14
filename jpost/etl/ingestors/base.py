@@ -44,16 +44,14 @@ class BaseIngestor(TaskRunner):
         raise NotImplementedError
 
     def post_run(self):
-        self._set_ingested(self._date)
+        self._set_ingested()
 
     def event(self, status: str) -> str:
         logging.info("Running base event ")
         return status
 
     def _get_ingest_date(self):
-        current_time = datetime.datetime.now().strftime("%Y-%m-%d")
-
-        current_date = current_time.strftime("%Y-%m-%d")
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
         task_start_date = self._task.date
 
         if not task_start_date or task_start_date < current_date:
