@@ -7,6 +7,7 @@ import shutil
 import time
 from bs4 import BeautifulSoup
 from pathlib import Path
+from scripts.base_crawler import DIST_DIR
 from urllib3.poolmanager import key_fn_by_scheme
 
 from core.settings import (
@@ -36,6 +37,13 @@ class FukeIngestorMixin(object):
             prefecture_dict.update(prefecture.to_en_dict())
         
         return prefecture_dict
+
+    @classmethod
+    def _fetch_html(cls, url: str, timeout: int=DEFAULT_JPOST_REQUEST_TIMEOUT) -> str:
+        resp = requests.get(url, headers=FUKE_HEADERS, timeout=timeout)
+        resp.raise_for_status()
+        resp.encoding = resp.apparent_encoding or "utf-8"
+        return resp.text
         
 
 class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
@@ -94,12 +102,6 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
         if src.startswith("/"):
             return f"{JPOST_BASE_URL}{src}"
         return f"{FUKE_BASE_URL}/{src}"
-
-    def _fetch_html(self, url: str, timeout: int=DEFAULT_JPOST_REQUEST_TIMEOUT) -> str:
-        resp = requests.get(url, headers=FUKE_HEADERS, timeout=timeout)
-        resp.raise_for_status()
-        resp.encoding = resp.apparent_encoding or "utf-8"
-        return resp.text
 
     def _collect_all_stamps(self, url: str, pref_id: int) -> list[dict]:
         seen_ids: set[str] = set()
@@ -212,7 +214,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
         date = datetime.datetime.now().strftime("%Y-%m-%d")
         ingestor_record = FukeIngestorRecords.get_by_owner_and_date(self._task.owner, date)
         if ingestor_record and ingestor_record.state != FukeIngestorRecords.StateEnum.CREATED.value:
-            logging.info(f"Ingestor record exists. task_type={self._task.task_type}, owner={self._task.owner}, date={date}")
+            logging.info(f"Fuke ingestor record not ready for basic info fetching. task_type={self._task.task_type}, owner={self._task.owner}, date={date}")
             return self.NO_WORK_TO_DO
 
         if not ingestor_record:
@@ -229,16 +231,32 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
         return result
 
 
-class FukeDetailIngestor(BaseIngestor):
+class FukeDetailIngestor(FukeIngestorMixin, BaseIngestor):
     DETAIL_LABEL_MAPPING = {
         "意匠図案説明": "description",
         "図案作成者名": "author",
         "開設場所": "location",
     }
+    DETAIL_CACHE: dict[str, dict[str, str]] = {}
 
     @classmethod
     def _blank_detail_info(cls) -> dict[str, str]:
         return {field: "" for field in cls.DETAIL_LABEL_MAPPING.values()}
+
+    @classmethod
+    def _fetch_fuke_detail_info(cls, detail_url: str) -> dict[str, str]:
+        if not detail_url:
+            return cls._blank_detail_info()
+
+        if detail_url in cls.DETAIL_CACHE:
+            return cls.DETAIL_CACHE[detail_url]
+
+        logging.info(f"Fetch data from {detail_url}")
+        time.sleep(DEFAULT_REQUEST_DELAY)
+        html = cls._fetch_html(detail_url)
+        info = cls._parse_detail_info(html)
+        cls.DETAIL_CACHE[detail_url] = info
+        return info
 
     @classmethod
     def _parse_detail_info(cls, html: str) -> dict[str, str]:
@@ -258,5 +276,53 @@ class FukeDetailIngestor(BaseIngestor):
             info[key] = text
         return info
 
+    def _get_detail_info(self) -> bool:
+        key = self._task.owner
+
+        data_file = DIST_DIR / key / "data.json"
+        if not data_file.exists():
+            logging.error(f"Can not find data.json file for {key}")
+            return self.FAILURE
+
+        with open(data_file, "r", encoding="uft-8") as f:
+            try:
+                records = json.load(f)
+            except json.JSONDecodeError as e:
+                logging.error(f"Data analysis for {key} failed: {e}")
+                return self.FAILURE
+
+        dirty = False
+        for r in records:
+            detail_url = r.get("detail_url", "")
+            if not detail_url:
+                logging.debug(f"Can not find detail_url for {r.get('fuke_name')}")
+                continue
+            
+            info = self._fetch_fuke_detail_info(detail_url)
+            for field in self.DETAIL_LABEL_MAPPING.values():
+                value = info.get(field, "")
+                if value and r.get(field, "") != value:
+                    r.get(field) = value
+                    dirty = True
+            
+        if dirty:
+            with open(data_file, "w", encoding="utf-8") as f:
+                json.dump(records, f, ensure_ascii=False, indent=2)
+            logging.info(f"Update data.json for {key}")
+            return self.SUCCESS
+        else:
+            return self.NO_WORK_TO_DO
+
     def fetch(self):
-        pass
+        date = datetime.datetime.now().strftime("%Y-%m-%d")
+        ingestor_record = FukeIngestorRecords.get_by_owner_and_date(self._task.owner, date)
+        if not ingestor_record or ingestor_record.state != FukeIngestorRecords.StateEnum.BASIC.value:
+            logging.info(f"Fuke ingestor record not ready for detail info fetching. task_type={self._task.task_type}, owner={self._task.owner}, date={date}")
+            return self.NO_WORK_TO_DO
+
+        result = self._get_detail_info()
+        if result == self.SUCCESS:
+            origin_state = ingestor_record.state
+            new_state = FukeIngestorRecords.StateEnum.DETAILED.value
+            FukeIngestorRecords.update_state(ingestor_record.id, origin_state, new_state)
+        return result

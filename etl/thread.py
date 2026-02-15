@@ -11,6 +11,7 @@ logging.basicConfig(level=logging.INFO)
 
 class TaskThread(threading.Thread):
     TASK_SELECT_RETRYS = 5
+    TASK_RETRY_TIME = 5
 
     def __init__(self, exit_flag, schedular):
         super().__init__()
@@ -29,7 +30,7 @@ class TaskThread(threading.Thread):
                 self._retries = 0
             else:
                 logging.debug(f"{tid} is idle, retry later")
-                time.sleep(1)
+                time.sleep(self.TASK_RETRY_TIME)
                 self._retries += 1
         logging.info(f"No task selected, thread {tid} exits")
 
