@@ -215,5 +215,7 @@ CLAUDE.md
 rules/
 
 docs/
+tmp/
 test/
+test.py
 

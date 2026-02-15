@@ -4,15 +4,27 @@ from models.base import BaseModel
 
 class Prefecture(BaseModel):
     _table_name = "prefecture"
-    _columns = ["name", "full_name", "en_name", "url"]
+    _columns = ["name", "full_name", "en_name", "url", "pref_id"]
     _db_manager = db_manager
 
     def __init__(self, **kwargs) -> None:
         self.id = kwargs.get('id')
+        self.pref_id = kwargs.get("pref_id")
         self.name = kwargs.get('name')
         self.full_name = kwargs.get('full_name')
         self.en_name = kwargs.get('en_name')
         self.url = kwargs.get('url')
+
+    def to_en_dict(self):
+        return {
+            self.en_name: {
+                "id": self.id,
+                "pref_id": self.pref_id,
+                "full_name": self.full_name,
+                "name": self.name,
+                "url": self.url
+            }
+        }
 
 
 class JPostOffice(BaseModel):
