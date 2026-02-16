@@ -7,8 +7,6 @@ import shutil
 import time
 from bs4 import BeautifulSoup
 from pathlib import Path
-from scripts.base_crawler import DIST_DIR
-from urllib3.poolmanager import key_fn_by_scheme
 
 from core.settings import (
     TMP_ROOT, JPOST_BASE_URL, 
@@ -199,7 +197,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
                 "image": img_filename,
                 "detail_url": detail_url,
                 "date": s["date"],
-                "prefecture": prefecture
+                "prefecture": key
             }
             records.append(record)
 
@@ -213,6 +211,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
     def fetch(self):
         date = datetime.datetime.now().strftime("%Y-%m-%d")
         ingestor_record = FukeIngestorRecords.get_by_owner_and_date(self._task.owner, date)
+
         if ingestor_record and ingestor_record.state != FukeIngestorRecords.StateEnum.CREATED.value:
             logging.info(f"Fuke ingestor record not ready for basic info fetching. task_type={self._task.task_type}, owner={self._task.owner}, date={date}")
             return self.NO_WORK_TO_DO
@@ -221,6 +220,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
             ingestor_record = FukeIngestorRecords(owner=self._task.owner, date=date)
             success = ingestor_record.save()
             if not success:
+                logging.info(f"Can not save fuke ingestor record, owner={self._task.owner}, date={date}")
                 return self.NO_WORK_TO_DO
 
         result = self._crawl_prefecture()
@@ -232,6 +232,8 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
 
 
 class FukeDetailIngestor(FukeIngestorMixin, BaseIngestor):
+    TASK_RETRY_PERIOD = 20
+
     DETAIL_LABEL_MAPPING = {
         "意匠図案説明": "description",
         "図案作成者名": "author",
@@ -279,12 +281,12 @@ class FukeDetailIngestor(FukeIngestorMixin, BaseIngestor):
     def _get_detail_info(self) -> bool:
         key = self._task.owner
 
-        data_file = DIST_DIR / key / "data.json"
+        data_file = TMP_ROOT / key / "data.json"
         if not data_file.exists():
             logging.error(f"Can not find data.json file for {key}")
             return self.FAILURE
 
-        with open(data_file, "r", encoding="uft-8") as f:
+        with open(data_file, "r", encoding="utf-8") as f:
             try:
                 records = json.load(f)
             except json.JSONDecodeError as e:
@@ -302,7 +304,7 @@ class FukeDetailIngestor(FukeIngestorMixin, BaseIngestor):
             for field in self.DETAIL_LABEL_MAPPING.values():
                 value = info.get(field, "")
                 if value and r.get(field, "") != value:
-                    r.get(field) = value
+                    r[field] = value
                     dirty = True
             
         if dirty:

@@ -25,7 +25,7 @@ class TaskThread(threading.Thread):
         logging.info(f"Thread {tid} start running")
         while not self._exit_flag.is_set() and self._retries <= self.TASK_SELECT_RETRYS:
             if self._select_task():
-                logging.info(f"{tid} is working on task {self._task.id} for {self._task.owner}")
+                logging.info(f"{tid} is working on task {self._task.id} for {self._task.owner}, task type {self._task.task_type}")
                 self._run_task()
                 self._retries = 0
             else:
@@ -40,13 +40,13 @@ class TaskThread(threading.Thread):
             task_timeout_secs = self._task_runners[task.task_type].TASK_TIMEOUT_SECS
             if (task.last_update - datetime.datetime.now()).total_seconds() < (task_timeout_secs/2):
                 next_update = datetime.datetime.now() + datetime.timedelta(seconds=task_timeout_secs)
-                Task.update_last_update(task.id, next_update)
+                Task.update_last_update(task.id, last_update=next_update)
                 task.last_update = next_update
 
     def cleanup(self, update_secs: Optional[int] = -1):
         if self._task:
             timestamp = datetime.datetime.now() + datetime.timedelta(seconds=update_secs)
-            Task.update_last_update(self._task.id, timestamp)
+            Task.update_last_update(self._task.id, last_update=timestamp)
             self._task = None
 
     def _select_task(self):
@@ -54,11 +54,13 @@ class TaskThread(threading.Thread):
         if task:
             timestamp = datetime.datetime.now()
             if task.last_update < timestamp:
+                origin_updated_time = task.last_update
                 task_timeout_secs = self._task_runners[task.task_type].TASK_TIMEOUT_SECS
                 task.last_update = timestamp + datetime.timedelta(seconds=task_timeout_secs)
-                task.save()
-                self._task = task
-                return True
+                result = Task.update_last_update(task.id, last_update=task.last_update, origin_updated_time=origin_updated_time)
+                if result > 0:
+                    self._task = task
+                    return True
         return False
 
     def _run_task(self):
