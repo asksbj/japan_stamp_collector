@@ -4,6 +4,8 @@ import datetime
 from etl.runner import TaskRunner
 from etl.models import Task
 
+logging.basicConfig(level=logging.INFO)
+
 class BaseIngestor(TaskRunner):
     SUCCESS = 1
     NO_WORK_TO_DO = 0

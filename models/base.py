@@ -86,7 +86,7 @@ class BaseModel:
         query = self._get_insert_query()
         params = self._get_values_for_db()
 
-        self.id = self.get_db_manager().execute_query(query, params)
+        self.id, _ = self.get_db_manager().execute_query(query, params)
     
     def _update(self) -> None:
         query = self._get_update_query()
