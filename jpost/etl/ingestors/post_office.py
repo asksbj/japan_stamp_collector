@@ -148,7 +148,7 @@ class PostOfficeLocationIngestor(BaseIngestor):
         async with aiohttp.ClientSession() as session:
             dirty = False
             for r in records:
-                jpost_name = (r.get("jpost_name") or "").strip()
+                jpost_name = (r.get("post_office_name") or "").strip()
                 if not jpost_name:
                     continue
                 if r.get("address") and r.get("address").get("lat") is not None:
