@@ -6,15 +6,11 @@ import json
 import re
 import time
 
-from core.settings import (
-    TMP_ROOT,
-    NOMINATIM_SEARCH_URL, NOMINATIM_USER_AGENT, 
-    NOMINATIM_REQUEST_TIMEOUT, NOMINATIM_MAX_RETRIES,
-    NOMINATIM_RATE_LIMIT_SECONDS
-)
+from core.settings import TMP_ROOT, GEO_INFO_VENDORS, GEO_INFO_REQUEST_TIMEOUT
 from core.network import get_proxy_from_env
 from jpost.etl.ingestors.base import BaseIngestor
 from jpost.models.ingestor import FukeIngestorRecords
+from jpost.utils.geo_info.factory import GeoInfoFactory
 
 logging.basicConfig(level=logging.INFO)
 
@@ -23,39 +19,39 @@ _last_request_time: float = 0
 
 
 class PostOfficeLocationIngestor(BaseIngestor):
-    NOMINATIM_CACHE: dict[str, dict[str, str]] = {}
+    GEO_INFO_CACHE: dict[str, dict[str, str]] = {}
     POSTCODE_RE = re.compile(r"\d{3}-\d{4}")
 
-    @classmethod
-    def _extract_postcode(cls, text: str) -> str:
-        if not text:
-            return ""
-        m = cls.POSTCODE_RE.search(text)
-        return m.group(0) if m else ""
+    # @classmethod
+    # def _extract_postcode(cls, text: str) -> str:
+    #     if not text:
+    #         return ""
+    #     m = cls.POSTCODE_RE.search(text)
+    #     return m.group(0) if m else ""
 
-    @classmethod
-    def _pick_best_result(cls, results: list[dict], prefecture_ja: str | None) -> dict | None:
-        if not results:
-            return None
-        if not prefecture_ja:
-            return results[0]
+    # @classmethod
+    # def _pick_best_result(cls, results: list[dict], prefecture_ja: str | None) -> dict | None:
+    #     if not results:
+    #         return None
+    #     if not prefecture_ja:
+    #         return results[0]
 
-        candidates = [
-            r for r in results if prefecture_ja in (r.get("display_name") or "")
-        ]
-        if not candidates:
-            candidates = results
-        return candidates[0]
+    #     candidates = [
+    #         r for r in results if prefecture_ja in (r.get("display_name") or "")
+    #     ]
+    #     if not candidates:
+    #         candidates = results
+    #     return candidates[0]
 
-    @classmethod
-    def _build_address_from_result(cls, result: dict) -> dict:
-        address_line = result.get("display_name") or ""
-        return {
-            "lat": result.get("lat"),
-            "long": result.get("lon"),
-            "address_line": address_line,
-            "postcode": cls._extract_postcode(address_line)
-        }
+    # @classmethod
+    # def _build_address_from_result(cls, result: dict) -> dict:
+    #     address_line = result.get("display_name") or ""
+    #     return {
+    #         "lat": result.get("lat"),
+    #         "long": result.get("lon"),
+    #         "address_line": address_line,
+    #         "postcode": cls._extract_postcode(address_line)
+    #     }
 
     @classmethod
     async def _rate_limited_request(
@@ -63,18 +59,22 @@ class PostOfficeLocationIngestor(BaseIngestor):
         session: aiohttp.ClientSession, 
         url: str, 
         params: dict, 
-        proxy: str | None = None
+        user_agent: str,
+        timeout: float | GEO_INFO_REQUEST_TIMEOUT,
+        rate_limit: int | 0,
+        max_retries: int | 0,
+        proxy: str | None = None,
     ) -> list[dict]:
         global _last_request_time
-        timeout = aiohttp.ClientTimeout(total=NOMINATIM_REQUEST_TIMEOUT)
+        timeout = aiohttp.ClientTimeout(total=timeout)
         headers = {
-            "User-Agent": NOMINATIM_USER_AGENT,
+            "User-Agent": user_agent,
             "Accept-Language": "ja",
         }
 
         last_error = None
-        for attemp in range(NOMINATIM_MAX_RETRIES+1):
-            await asyncio.sleep(max(0, NOMINATIM_RATE_LIMIT_SECONDS - (time.monotonic() - _last_request_time)))
+        for attemp in range(max_retries+1):
+            await asyncio.sleep(max(0, rate_limit - (time.monotonic() - _last_request_time)))
             _last_request_time = time.monotonic()
             try:
                 async with session.get(url, params=params, headers=headers, timeout=timeout, proxy=proxy) as resp:
@@ -83,14 +83,14 @@ class PostOfficeLocationIngestor(BaseIngestor):
                 return data if isinstance(data, list) else []
             except (asyncio.TimeoutError, aiohttp.ClientError, aiohttp.ServerDisconnectedError) as e:
                 last_error = e
-                if attemp < NOMINATIM_MAX_RETRIES:
+                if attemp < max_retries:
                     await asyncio.sleep(2.0 * (attemp + 1))
                 else:
                     raise
         raise last_error
 
     @classmethod
-    async def _fetch_nominatim(
+    async def _fetch_geo_info(
         cls, 
         session: aiohttp.ClientSession, 
         jpost_name: str, 
@@ -99,27 +99,50 @@ class PostOfficeLocationIngestor(BaseIngestor):
         proxy: str | None = None
     ) -> dict | None:
         cache_key = (jpost_name.strip(), prefecture_ja or "")
-        if use_cache and cache_key in cls.NOMINATIM_CACHE:
-            cached = cls.NOMINATIM_CACHE[cache_key]
-            return cls._build_address_from_result(cached)
+        if use_cache and cache_key in cls.GEO_INFO_CACHE:
+            return cls.GEO_INFO_CACHE[cache_key]
         
-        params = {
-            "q": jpost_name,
-            "format": "json",
-            "countrycodes": "jp",
+        generator_params = {
+            "jpost_name": jpost_name,
+            "prefecture_ja": prefecture_ja
         }
-        try:
-            results = await cls._rate_limited_request(session, NOMINATIM_SEARCH_URL, params, proxy=proxy)
-        except (asyncio.TimeoutError, aiohttp.ClientError) as e:
-            logging.error(f"Nominatim request failed for {jpost_name}: {e}")
+        results = []
+        generator = None
+        for vendor in GEO_INFO_VENDORS:
+            vendor_name = vendor.get("name")
+            generator = GeoInfoFactory.get_geo_info_generator(vendor_name, **generator_params)
+            params = generator.generate_params()
+
+            try:
+                results = await cls._rate_limited_request(
+                    session, 
+                    vendor.get("url"), 
+                    params,
+                    user_agent=vendor.get("user_agent"),
+                    timeout=vendor.get("request_timeout"),
+                    max_retries=vendor.get("max_retries"),
+                    rate_limit=vendor.get("rate_limit"),
+                    proxy=proxy)
+            except (asyncio.TimeoutError, aiohttp.ClientError) as e:
+                logging.error(f"{vendor_name} request failed for {jpost_name}: {e}")
+            
+            if results:
+                break
+        
+        if not results:
+            logging.debug(f"Can not get geo info for {prefecture_ja}, {jpost_name}")
             return None
 
-        best = cls._pick_best_result(results, prefecture_ja)
-        if not best:
-            return None
+        # best = cls._pick_best_result(results, prefecture_ja)
+        # best = generator.get_best_result(results)
+        # if not best:
+        #     return None
 
-        cls.NOMINATIM_CACHE[cache_key] = best
-        address = cls._build_address_from_result(best)
+        # cls.GEO_INFO_CACHE[cache_key] = best
+        # address = cls._build_address_from_result(best)
+        address = generator.parse_result()
+        if address:
+            cls.GEO_INFO_CACHE[cache_key] = address
         return address
 
     async def _get_location_info(self):
@@ -157,7 +180,7 @@ class PostOfficeLocationIngestor(BaseIngestor):
                 
                 prefecture_ja = r.get("prefecture") or ""
 
-                address = await self._fetch_nominatim(
+                address = await self._fetch_geo_info(
                     session,
                     jpost_name,
                     prefecture_ja,

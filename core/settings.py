@@ -19,8 +19,22 @@ JPOST_REQUEST_TIMEOUT = 30
 DEFAULT_REQUEST_DELAY = 1.0
 REQUEST_DELAY_BEFORE_DOWNLOAD = 0.5
 
-NOMINATIM_SEARCH_URL = "https://nominatim.openstreetmap.org/search"
-NOMINATIM_USER_AGENT = "JapanStampCollector/1.0 (https://github.com/japan-stamp-collector; geocoding for post office locations)"
-NOMINATIM_REQUEST_TIMEOUT = 30
-NOMINATIM_MAX_RETRIES = 2
-NOMINATIM_RATE_LIMIT_SECONDS = 1
+GEO_INFO_REQUEST_TIMEOUT = 30
+GEO_INFO_VENDORS = [
+    {
+        "name": "nominatim",
+        "url": "https://nominatim.openstreetmap.org/search",
+        "user_agent": "JapanStampCollector/1.0 (https://github.com/japan-stamp-collector; geocoding for post office locations)",
+        "request_timeout": 30,
+        "max_retries": 2,
+        "rate_limit": 1
+    },
+    {
+        "name": "google maps",
+        "url": "https://maps.googleapis.com/maps/api/geocode/json?",
+        "user_agent": "JapanStampCollector/1.0 (https://github.com/japan-stamp-collector; geocoding for post office locations)",
+        "request_timeout": 30,
+        "max_retries": 2,
+        "rate_limit": 1
+    },
+]
