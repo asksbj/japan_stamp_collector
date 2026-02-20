@@ -21,7 +21,7 @@ from jpost.models.jpost import Prefecture
 from jpost.models.ingestor import FukeIngestorRecords
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 
 class FukeIngestorMixin(object):
@@ -45,7 +45,6 @@ class FukeIngestorMixin(object):
         
 
 class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
-    TASK_TIMEOUT_SECS = 900
 
     @classmethod
     def _parse_stamp_posts(cls, html: str) -> list[dict]:
@@ -197,7 +196,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
                 "image": img_filename,
                 "detail_url": detail_url,
                 "date": s["date"],
-                "prefecture": s["prefecutre"]
+                "prefecture": s["prefecture"]
             }
             records.append(record)
 
@@ -318,8 +317,10 @@ class FukeDetailIngestor(FukeIngestorMixin, BaseIngestor):
     def fetch(self):
         date = datetime.datetime.now().strftime("%Y-%m-%d")
         ingestor_record = FukeIngestorRecords.get_by_owner_and_date(self._task.owner, date)
-        if not ingestor_record or ingestor_record.state != FukeIngestorRecords.StateEnum.BASIC.value:
+        if not ingestor_record or ingestor_record.state == FukeIngestorRecords.StateEnum.CREATED.value:
             logging.info(f"Fuke ingestor record not ready for detail info fetching, task_type={self._task.task_type}, owner={self._task.owner}, date={date}")
+            return self.NOT_READY_FOR_WORK
+        elif ingestor_record.state != FukeIngestorRecords.StateEnum.BASIC.value:
             return self.NO_WORK_TO_DO
 
         result = self._get_detail_info()
