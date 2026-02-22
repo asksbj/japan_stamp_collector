@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 
@@ -29,12 +30,13 @@ GEO_INFO_VENDORS = [
         "max_retries": 2,
         "rate_limit": 1
     },
-    # {
-    #     "name": "google maps",
-    #     "url": "https://maps.googleapis.com/maps/api/geocode/json?",
-    #     "user_agent": "JapanStampCollector/1.0 (https://github.com/japan-stamp-collector; geocoding for post office locations)",
-    #     "request_timeout": 30,
-    #     "max_retries": 2,
-    #     "rate_limit": 1
-    # },
+    {
+        "name": "google maps",
+        "api_key": os.getenv('GOOGLE_MAPS_API_KEY', 'AIzaSyC3jJxPXJJyUSGhyt7K2aiblZWMxOnjGUg'),
+        "url": "https://maps.googleapis.com/maps/api/geocode/json?",
+        "user_agent": "JapanStampCollector/1.0; geocoding for post office locations)",
+        "request_timeout": 30,
+        "max_retries": 2,
+        "rate_limit": 1
+    },
 ]

@@ -22,42 +22,6 @@ class PostOfficeLocationIngestor(BaseIngestor):
     GEO_INFO_CACHE: dict[str, dict[str, str]] = {}
     POSTCODE_RE = re.compile(r"\d{3}-\d{4}")
 
-    # @classmethod
-    # async def _rate_limited_request(
-    #     cls, 
-    #     session: aiohttp.ClientSession, 
-    #     url: str, 
-    #     params: dict, 
-    #     user_agent: str,
-    #     timeout: float=GEO_INFO_REQUEST_TIMEOUT,
-    #     rate_limit: int=0,
-    #     max_retries: int=0,
-    #     proxy: str | None = None,
-    # ) -> list[dict]:
-    #     global _last_request_time
-    #     timeout = aiohttp.ClientTimeout(total=timeout)
-    #     headers = {
-    #         "User-Agent": user_agent,
-    #         "Accept-Language": "ja",
-    #     }
-
-    #     last_error = None
-    #     for attemp in range(max_retries+1):
-    #         await asyncio.sleep(max(0, rate_limit - (time.monotonic() - _last_request_time)))
-    #         _last_request_time = time.monotonic()
-    #         try:
-    #             async with session.get(url, params=params, headers=headers, timeout=timeout, proxy=proxy) as resp:
-    #                 resp.raise_for_status()
-    #                 data = await resp.json()
-    #             return data if isinstance(data, list) else []
-    #         except (asyncio.TimeoutError, aiohttp.ClientError, aiohttp.ServerDisconnectedError) as e:
-    #             last_error = e
-    #             if attemp < max_retries:
-    #                 await asyncio.sleep(2.0 * (attemp + 1))
-    #             else:
-    #                 raise
-    #     raise last_error
-
     @classmethod
     async def _fetch_geo_info(
         cls, 
@@ -65,6 +29,7 @@ class PostOfficeLocationIngestor(BaseIngestor):
         jpost_name: str, 
         prefecture_ja: str,
         use_cache: bool,
+        location: str | None = None,
         proxy: str | None = None
     ) -> dict | None:
         cache_key = (jpost_name.strip(), prefecture_ja or "")
@@ -74,16 +39,17 @@ class PostOfficeLocationIngestor(BaseIngestor):
         address = None
         generator_params = {
             "key": jpost_name,
-            "prefecture_ja": prefecture_ja
+            "jpost_name": jpost_name,
+            "prefecture_ja": prefecture_ja,
+            "location": location
         }
         generator = None
         for vendor in GEO_INFO_VENDORS:
             vendor_name = vendor.get("name")
-            generator_params.update({"config": vendor})
             generator = GeoInfoFactory.get_geo_info_generator(vendor_name, **generator_params)
 
             try:
-                address = await generator.generate_result(session, proxy)
+                address = await generator.generate_geo_info(session, proxy)
             except (asyncio.TimeoutError, aiohttp.ClientError) as e:
                 logging.error(f"{vendor_name} request failed for {jpost_name}: {e}")
             
@@ -127,12 +93,14 @@ class PostOfficeLocationIngestor(BaseIngestor):
                     continue
                 
                 prefecture_ja = r.get("prefecture") or ""
+                location = r.get("location") or ""
 
                 address = await self._fetch_geo_info(
                     session,
                     jpost_name,
                     prefecture_ja,
                     use_cache=True,
+                    location=location,
                     proxy=proxy
                 )
                 if address is None:
