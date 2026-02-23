@@ -24,7 +24,7 @@ class NominatimGeoGenerator(AbstractGeoInfoGenerator):
             }
 
     def _parse_results(self) -> None:
-        self._results = self._raw_results
+        self._results = self._response_data if isinstance(self._response_data, list) else []
     
     def _pick_best_result(self) -> None:
         if not self._results:

@@ -14,7 +14,7 @@ class AbstractGeoInfoGenerator(ABC):
     def __init__(self, **kwargs) -> None:
         self._config = None
         self._key = None
-        self._raw_results = None
+        self._response_data = None
         self._results = []
         self._best = None
 
@@ -63,7 +63,7 @@ class AbstractGeoInfoGenerator(ABC):
                 async with session.get(url, params=params, headers=headers, timeout=timeout, proxy=proxy) as resp:
                     resp.raise_for_status()
                     data = await resp.json()
-                self._raw_results = data if isinstance(data, list) else []
+                self._response_data = data
                 return
             except (asyncio.TimeoutError, aiohttp.ClientError, aiohttp.ServerDisconnectedError) as e:
                 # last_error = e
