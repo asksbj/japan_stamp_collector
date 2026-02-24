@@ -6,3 +6,4 @@ class TaskType:
     INGESTOR_CITY = "ingestor_city"
 
     MIGRATOR_CITY = "migrator_city"
+    MIGRATOR_FUKE = "migrator_fuke"
