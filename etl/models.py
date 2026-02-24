@@ -38,13 +38,23 @@ class Task(BaseModel):
         return cls.get_db_results(query, params, fetch_one=True)
 
     @classmethod
-    def update_last_update(cls, task_id: int, last_update: Optional[datetime.datetime] = datetime.datetime.now()) -> None:
+    def update_last_update(
+        cls, 
+        task_id: int, 
+        last_update: Optional[datetime.datetime] = datetime.datetime.now(),
+        origin_updated_time: Optional[datetime.datetime] = None
+    ) -> None:
         if not task_id:
             return None
 
-        query = f"UPDATE {cls.get_table_name()} SET last_update = %s WHERE id = %s"
-        params = (last_update, task_id)
-        cls.get_db_manager().execute_query(query, params)
+        if not origin_updated_time:
+            query = f"UPDATE {cls.get_table_name()} SET last_update = %s WHERE id = %s"
+            params = (last_update, task_id)
+        else:
+            query = f"UPDATE {cls.get_table_name()} SET last_update = %s WHERE id = %s AND last_update = %s"
+            params = (last_update, task_id, origin_updated_time)
+        _, result = cls.get_db_manager().execute_query(query, params)
+        return result
 
     
 

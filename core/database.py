@@ -121,7 +121,7 @@ class BaseDBManager(ABC):
             elif fetch_all:
                 return cursor.fetchall()
             else:
-                return cursor.lastrowid
+                return cursor.lastrowid, cursor.rowcount
 
     @property
     def database_name(self) -> str:

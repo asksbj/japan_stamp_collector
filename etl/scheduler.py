@@ -68,7 +68,8 @@ class TaskScheduler:
                     if not thread.is_alive():
                         thread_list.remove(thread)
                         # sys.exit("Detect dead thread")
-                    thread.keep_alive()
+                    else:
+                        thread.keep_alive()
                 cls.health_check()
                 logging.info(f"Waiting for health check for {cls.HEALTH_CHECK_PERIOD_SEC} seconds")
                 time.sleep(cls.HEALTH_CHECK_PERIOD_SEC)
