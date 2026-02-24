@@ -11,7 +11,7 @@ from pathlib import Path
 from core.settings import (
     TMP_ROOT, JPOST_BASE_URL, 
     FUKE_BASE_URL, FUKE_HEADERS, 
-    DEFAULT_JPOST_REQUEST_TIMEOUT, 
+    JPOST_REQUEST_TIMEOUT, 
     DEFAULT_REQUEST_DELAY, 
     REQUEST_DELAY_BEFORE_DOWNLOAD
 )
@@ -21,7 +21,7 @@ from jpost.models.jpost import Prefecture
 from jpost.models.ingestor import FukeIngestorRecords
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 
 class FukeIngestorMixin(object):
@@ -37,7 +37,7 @@ class FukeIngestorMixin(object):
         return prefecture_dict
 
     @classmethod
-    def _fetch_html(cls, url: str, timeout: int=DEFAULT_JPOST_REQUEST_TIMEOUT) -> str:
+    def _fetch_html(cls, url: str, timeout: int=JPOST_REQUEST_TIMEOUT) -> str:
         resp = requests.get(url, headers=FUKE_HEADERS, timeout=timeout)
         resp.raise_for_status()
         resp.encoding = resp.apparent_encoding or "utf-8"
@@ -45,7 +45,6 @@ class FukeIngestorMixin(object):
         
 
 class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
-    TASK_TIMEOUT_SECS = 900
 
     @classmethod
     def _parse_stamp_posts(cls, html: str) -> list[dict]:
@@ -138,7 +137,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
 
         return all_stamps
 
-    def _download_image(self, url: str, save_path: Path, timeout=DEFAULT_JPOST_REQUEST_TIMEOUT) -> bool:
+    def _download_image(self, url: str, save_path: Path, timeout=JPOST_REQUEST_TIMEOUT) -> bool:
         try:
             resp = requests.get(url, headers=FUKE_HEADERS, timeout=timeout)
             resp.raise_for_status()
@@ -197,7 +196,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
                 "image": img_filename,
                 "detail_url": detail_url,
                 "date": s["date"],
-                "prefecture": key
+                "prefecture": s["prefecture"]
             }
             records.append(record)
 
@@ -253,7 +252,6 @@ class FukeDetailIngestor(FukeIngestorMixin, BaseIngestor):
         if detail_url in cls.DETAIL_CACHE:
             return cls.DETAIL_CACHE[detail_url]
 
-        logging.info(f"Fetch data from {detail_url}")
         time.sleep(DEFAULT_REQUEST_DELAY)
         html = cls._fetch_html(detail_url)
         info = cls._parse_detail_info(html)
@@ -318,8 +316,10 @@ class FukeDetailIngestor(FukeIngestorMixin, BaseIngestor):
     def fetch(self):
         date = datetime.datetime.now().strftime("%Y-%m-%d")
         ingestor_record = FukeIngestorRecords.get_by_owner_and_date(self._task.owner, date)
-        if not ingestor_record or ingestor_record.state != FukeIngestorRecords.StateEnum.BASIC.value:
-            logging.info(f"Fuke ingestor record not ready for detail info fetching. task_type={self._task.task_type}, owner={self._task.owner}, date={date}")
+        if not ingestor_record or ingestor_record.state == FukeIngestorRecords.StateEnum.CREATED.value:
+            logging.info(f"Fuke ingestor record not ready for detail info fetching, task_type={self._task.task_type}, owner={self._task.owner}, date={date}")
+            return self.NOT_READY_FOR_WORK
+        elif ingestor_record.state != FukeIngestorRecords.StateEnum.BASIC.value:
             return self.NO_WORK_TO_DO
 
         result = self._get_detail_info()

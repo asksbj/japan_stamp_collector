@@ -9,7 +9,8 @@ logging.basicConfig(level=logging.INFO)
 class BaseIngestor(TaskRunner):
     SUCCESS = 1
     NO_WORK_TO_DO = 0
-    FAILURE = -1
+    NOT_READY_FOR_WORK = -1
+    FAILURE = -999
 
     def __init__(self, task: Task) -> None:
         super().__init__(task)

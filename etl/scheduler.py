@@ -9,7 +9,7 @@ from typing import final
 from etl.thread import TaskThread
 from etl.models import Task
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 
 class TaskScheduler:

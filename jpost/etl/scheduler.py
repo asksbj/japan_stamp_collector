@@ -8,7 +8,7 @@ class JPostTaskScheduler(TaskScheduler):
     TASK_OWNER_RUNNERS = {
         TaskType.INGESTOR_FUKE_BASIC: FukeBasicIngestor,
         TaskType.INGESTOR_FUKE_DETAIL: FukeDetailIngestor,
-        # TaskType.INGESTOR_POST_OFFICE_LOCATION: PostOfficeLocationIngestor
+        TaskType.INGESTOR_POST_OFFICE_LOCATION: PostOfficeLocationIngestor
     }
 
     TASK_GLOBAL_RUNNERS = {}
