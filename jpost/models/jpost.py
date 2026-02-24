@@ -19,6 +19,16 @@ class JPostOffice(BaseModel):
         self.pref_id = kwargs.get("pref_id")
         self.city_id = kwargs.get("city_id")
 
+    @classmethod
+    def get_by_name_and_pref(cls, name: str, pref_id: int) -> "JPostOffice":
+        if not name or not pref_id:
+            return None
+
+        query = f"SELECT * FROM {cls.get_table_name()} WHERE name = %s and pref_id = %s"
+        params = (name, pref_id)
+
+        return cls.get_db_results(query, params, fetch_one=True)
+
 
 class Fuke(BaseModel):
     _table_name = "fuke"
@@ -35,3 +45,13 @@ class Fuke(BaseModel):
         self.author = kwargs.get("author")
 
         self.jpost_id = kwargs.get("jpost_id")
+
+    @classmethod
+    def get_by_name_and_jpost(cls, name: str, jpost_id: int) -> "Fuke":
+        if not name or not jpost_id:
+            return None
+
+        query = f"SELECT * FROM {cls.get_table_name()} WHERE name = %s and jpost_id = %s"
+        params = (name, jpost_id)
+
+        return cls.get_db_results(query, params, fetch_one=True)

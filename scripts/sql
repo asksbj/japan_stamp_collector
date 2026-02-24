@@ -40,8 +40,31 @@ CREATE TABLE IF NOT EXISTS city (
     FOREIGN KEY (pref_id) REFERENCES prefecture(pref_id)
 );
 
--- If fuke_ingestor_record already exists without uk_owner_date, run (after removing duplicates if any):
--- USE japan_stamp_collector;
--- ALTER TABLE fuke_ingestor_record ADD UNIQUE KEY uk_owner_date (owner, date);
+CREATE TABLE IF NOT EXISTS jpost_office (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(32) NOT NULL,
+    address VARCHAR(255),
+    postcode VARCHAR(16),
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(11, 8),
+    business_hours JSON,
+    pref_id INT,
+    city_id INT,
+    FOREIGN KEY (pref_id) REFERENCES prefecture(pref_id),
+    FOREIGN KEY (city_id) REFERENCES city(id)
+);
+
+CREATE TABLE IF NOT EXISTS fuke (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(32) NOT NULL,
+    abolition BOOLEAN,
+    image_url VARCHAR(255),
+    start_date VARCHAR(16),
+    description VARCHAR(255),
+    author VARCHAR(16),
+    jpost_id INT,
+    FOREIGN KEY (jpost_id) REFERENCES jpost_office(id)
+);
+
 
 
