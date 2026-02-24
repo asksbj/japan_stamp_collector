@@ -252,7 +252,6 @@ class FukeDetailIngestor(FukeIngestorMixin, BaseIngestor):
         if detail_url in cls.DETAIL_CACHE:
             return cls.DETAIL_CACHE[detail_url]
 
-        logging.info(f"Fetch data from {detail_url}")
         time.sleep(DEFAULT_REQUEST_DELAY)
         html = cls._fetch_html(detail_url)
         info = cls._parse_detail_info(html)

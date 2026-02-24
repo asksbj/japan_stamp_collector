@@ -79,8 +79,6 @@ class PostOfficeLocationIngestor(BaseIngestor):
                 return self.FAILURE
         
         proxy = get_proxy_from_env()
-        if proxy:
-            logging.info(f"Use proxy: {proxy}")
 
         updated_count = 0
         no_result_count = 0
