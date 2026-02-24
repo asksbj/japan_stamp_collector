@@ -29,14 +29,14 @@ class Prefecture(BaseModel):
 
 class City(BaseModel):
     _table_name = "city"
-    _columns = ["name", "kind", "reading", "prefecture_id"]
+    _columns = ["name", "kind", "reading", "pref_id"]
     _db_manager = db_manager
 
     def __init__(self, **kwargs) -> None:
         self.id = kwargs.get('id')
         self.name = kwargs.get('name')
         self.reading = kwargs.get('reading')
-        self.prefecture_id = kwargs.get("prefecture_id")
+        self.pref_id = kwargs.get("pref_id")
 
 
 class Holiday(BaseModel):

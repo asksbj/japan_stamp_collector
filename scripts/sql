@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS prefecture (
     full_name VARCHAR(32) NOT NULL,
     en_name VARCHAR(32) NOT NULL,
     jpost_url VARCHAR(128),
-    pref_id INT
+    pref_id INT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS city (
@@ -36,8 +36,8 @@ CREATE TABLE IF NOT EXISTS city (
     name VARCHAR(32) NOT NULL,
     kind VARCHAR(16),
     reading VARCHAR(32),
-    prefecture_id INT,
-    FOREIGN KEY (prefecture_id) REFERENCES prefecture(id)
+    pref_id INT,
+    FOREIGN KEY (pref_id) REFERENCES prefecture(pref_id)
 );
 
 -- If fuke_ingestor_record already exists without uk_owner_date, run (after removing duplicates if any):
