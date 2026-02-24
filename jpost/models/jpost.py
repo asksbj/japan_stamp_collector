@@ -29,13 +29,12 @@ class Prefecture(BaseModel):
 
 class JPostOffice(BaseModel):
     _table_name = "jpost_office"
-    _columns = ["name", "abolition", "prefecture", "city", "address", "latitude", "longtitude", "business_hours"]
+    _columns = ["name", "prefecture", "city", "address", "latitude", "longtitude", "business_hours"]
     _db_manager = db_manager
 
     def __init__(self, **kwargs) -> None:
         self.id = kwargs.get('id')
         self.name = kwargs.get('office_name')
-        self.abolition = kwargs.get('abolition')
         self.prefecture = kwargs.get('prefecture')
         self.city = kwargs.get('city')
         self.address = kwargs.get('office_location')
