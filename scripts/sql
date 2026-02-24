@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS prefecture (
     name VARCHAR(32) NOT NULL,
     full_name VARCHAR(32) NOT NULL,
     en_name VARCHAR(32) NOT NULL,
-    url VARCHAR(128),
+    jpost_url VARCHAR(128),
     pref_id INT
 );
 

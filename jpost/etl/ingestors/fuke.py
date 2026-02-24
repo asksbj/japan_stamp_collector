@@ -167,7 +167,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
     def _crawl_prefecture(self) -> int:
         key = self._task.owner
         prefecture = self._load_prefectures()[key]
-        url = prefecture.get("url")
+        url = prefecture.get("jpost_url")
         pref_id = prefecture.get("pref_id")
         if not url:
             logging.info(f"Skip prefecture {key}: no url")
