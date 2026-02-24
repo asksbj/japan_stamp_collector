@@ -36,6 +36,7 @@ class City(BaseModel):
     def __init__(self, **kwargs) -> None:
         self.id = kwargs.get("id")
         self.name = kwargs.get("name")
+        self.kind = kwargs.get("kind")
         self.reading = kwargs.get("reading")
 
         self.pref_id = kwargs.get("pref_id")

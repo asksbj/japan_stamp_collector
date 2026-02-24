@@ -61,6 +61,7 @@ class BaseMigrator(TaskRunner):
             return current_date
 
         next_run_date = datetime.datetime.strptime(task_last_run_time, '%Y-%m-%d') + datetime.timedelta(days=self.MIGRATE_INTERVAL_DAYS)
+        next_run_date = next_run_date.strftime("%Y-%m-%d")
         if next_run_date < current_date:
             return current_date
         
