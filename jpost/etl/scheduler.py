@@ -3,6 +3,7 @@ from jpost.etl.datatype import TaskType
 from jpost.etl.ingestors.city import CityIngestor
 from jpost.etl.ingestors.fuke import FukeBasicIngestor, FukeDetailIngestor
 from jpost.etl.ingestors.post_office import PostOfficeLocationIngestor
+from jpost.etl.migrators.city import CityMigrator
 from jpost.models.administration import Prefecture
 
 class JPostTaskScheduler(TaskScheduler):
@@ -13,7 +14,8 @@ class JPostTaskScheduler(TaskScheduler):
     }
 
     TASK_GLOBAL_RUNNERS = {
-        TaskType.INGESTOR_CITY: CityIngestor
+        TaskType.INGESTOR_CITY: CityIngestor,
+        TaskType.MIGRATOR_CITY: CityMigrator
     }
 
     TASK_RUNNERS = {**TASK_OWNER_RUNNERS, **TASK_GLOBAL_RUNNERS}

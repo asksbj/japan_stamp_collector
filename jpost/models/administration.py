@@ -40,6 +40,16 @@ class City(BaseModel):
 
         self.pref_id = kwargs.get("pref_id")
 
+    @classmethod
+    def get_by_name_and_pref(cls, name: str, pref_id: int) -> "City":
+        if not name or not pref_id:
+            return None
+
+        query = f"SELECT * FROM {cls.get_table_name()} WHERE name = %s and pref_id = %s"
+        params = (name, pref_id)
+
+        return cls.get_db_results(query, params, fetch_one=True)
+
 
 class Holiday(BaseModel):
     _table_name = "holiday"

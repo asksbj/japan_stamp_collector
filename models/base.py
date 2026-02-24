@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Iterable
 
 from core.database import BaseDBManager
 
@@ -112,3 +112,26 @@ class BaseModel:
         params = ()
 
         return cls.get_db_results(query, params)
+
+    @classmethod
+    def bulk_insert(cls, objs: Iterable["BaseModel"]) -> int:
+        objs = list(objs)
+        if not objs:
+            return 0
+
+        columns = cls.get_columns()
+        columns_sql = ", ".join(columns)
+        placeholders = ", ".join(["%s"] * len(columns))
+        sql = f"INSERT INTO {cls.get_table_name()} ({columns_sql}) VALUES ({placeholders})"
+
+        params_list = []
+        for obj in objs:
+            row = []
+            for col in columns:
+                row.append(getattr(obj, col, None))
+            params_list.append(tuple(row))
+
+        db = cls.get_db_manager()
+        with db.get_cursor() as cursor:
+            cursor.executemany(sql, params_list)
+            return cursor.rowcount
