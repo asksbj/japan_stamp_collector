@@ -47,11 +47,15 @@ class Fuke(BaseModel):
         self.jpost_id = kwargs.get("jpost_id")
 
     @classmethod
-    def get_by_name_and_jpost(cls, name: str, jpost_id: int) -> "Fuke":
+    def get_by_name_and_jpost(cls, name: str, jpost_id: int, abolition: bool | None = None) -> "Fuke":
         if not name or not jpost_id:
             return None
 
-        query = f"SELECT * FROM {cls.get_table_name()} WHERE name = %s and jpost_id = %s"
-        params = (name, jpost_id)
+        if abolition is not None:
+            query = f"SELECT * FROM {cls.get_table_name()} WHERE name = %s and jpost_id = %s and abolition = %s"
+            params = (name, jpost_id, abolition)
+        else:
+            query = f"SELECT * FROM {cls.get_table_name()} WHERE name = %s and jpost_id = %s"
+            params = (name, jpost_id)
 
         return cls.get_db_results(query, params, fetch_one=True)

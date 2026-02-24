@@ -13,8 +13,9 @@ logging.basicConfig(level=logging.INFO)
 
 
 class FukeMigrator(BaseMigrator):
-
     MIGRATE_INTERVAL_DAYS = 1
+    DESCRIPTION_MAX_LENTH = 250
+    AUTHOR_MAX_LENTH = 28
 
     @classmethod
     def _load_prefectures(cls) -> dict[str, Prefecture]:
@@ -51,10 +52,10 @@ class FukeMigrator(BaseMigrator):
         if not location or not pref_id:
             return None
 
-        first_line = location.split("\n")[0]
+        second_line = location.split("\n")[1]
         candidates = cities_by_pref.get(pref_id) or []
         for name, city_id in candidates:
-            if name and name in first_line:
+            if name and name in second_line:
                 return city_id
         return None
 
@@ -134,8 +135,12 @@ class FukeMigrator(BaseMigrator):
         start_date = record.get("date") or ""
         description = record.get("description") or ""
         author = record.get("author") or ""
+        if len(description) > self.DESCRIPTION_MAX_LENTH:
+            description = description[:self.DESCRIPTION_MAX_LENTH] + "..."
+        if len(author) > self.AUTHOR_MAX_LENTH:
+            author = author[:self.AUTHOR_MAX_LENTH] + "..."
 
-        existing = Fuke.get_by_name_and_jpost(fuke_name, jpost_id)
+        existing = Fuke.get_by_name_and_jpost(fuke_name, jpost_id, abolition=abolition)
         if existing:
             fuke = existing
         else:
