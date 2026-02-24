@@ -31,6 +31,15 @@ CREATE TABLE IF NOT EXISTS prefecture (
     pref_id INT
 );
 
+CREATE TABLE IF NOT EXISTS city (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(32) NOT NULL,
+    kind VARCHAR(16),
+    reading VARCHAR(32),
+    prefecture_id INT,
+    FOREIGN KEY (prefecture_id) REFERENCES prefecture(id)
+);
+
 -- If fuke_ingestor_record already exists without uk_owner_date, run (after removing duplicates if any):
 -- USE japan_stamp_collector;
 -- ALTER TABLE fuke_ingestor_record ADD UNIQUE KEY uk_owner_date (owner, date);

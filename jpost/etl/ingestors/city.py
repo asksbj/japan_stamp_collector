@@ -13,7 +13,7 @@ from core.settings import (
     DEFAULT_REQUEST_DELAY,
 )
 from jpost.etl.ingestors.base import BaseIngestor
-from jpost.models.jpost import Prefecture
+from jpost.models.administration import Prefecture
 
 
 logging.basicConfig(level=logging.INFO)

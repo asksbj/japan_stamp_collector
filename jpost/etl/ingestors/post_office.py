@@ -4,9 +4,8 @@ import aiohttp
 import datetime
 import json
 import re
-import time
 
-from core.settings import TMP_ROOT, GEO_INFO_VENDORS, GEO_INFO_REQUEST_TIMEOUT
+from core.settings import TMP_ROOT, GEO_INFO_VENDORS
 from core.network import get_proxy_from_env
 from jpost.etl.ingestors.base import BaseIngestor
 from jpost.models.ingestor import FukeIngestorRecords

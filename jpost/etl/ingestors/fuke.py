@@ -17,7 +17,7 @@ from core.settings import (
 )
 from jpost.enums.text import JPTextEnum
 from jpost.etl.ingestors.base import BaseIngestor
-from jpost.models.jpost import Prefecture
+from jpost.models.administration import Prefecture
 from jpost.models.ingestor import FukeIngestorRecords
 
 

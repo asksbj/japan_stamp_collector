@@ -3,7 +3,7 @@ from jpost.etl.datatype import TaskType
 from jpost.etl.ingestors.city import CityIngestor
 from jpost.etl.ingestors.fuke import FukeBasicIngestor, FukeDetailIngestor
 from jpost.etl.ingestors.post_office import PostOfficeLocationIngestor
-from jpost.models.jpost import Prefecture
+from jpost.models.administration import Prefecture
 
 class JPostTaskScheduler(TaskScheduler):
     TASK_OWNER_RUNNERS = {
