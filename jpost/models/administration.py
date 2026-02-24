@@ -8,12 +8,13 @@ class Prefecture(BaseModel):
     _db_manager = db_manager
 
     def __init__(self, **kwargs) -> None:
-        self.id = kwargs.get('id')
+        self.id = kwargs.get("id")
+        self.name = kwargs.get("name")
+        self.full_name = kwargs.get("full_name")
+        self.en_name = kwargs.get("en_name")
+        self.jpost_url = kwargs.get("jpost_url")
         self.pref_id = kwargs.get("pref_id")
-        self.name = kwargs.get('name')
-        self.full_name = kwargs.get('full_name')
-        self.en_name = kwargs.get('en_name')
-        self.jpost_url = kwargs.get('jpost_url')
+
 
     def to_en_dict(self):
         return {
@@ -33,9 +34,10 @@ class City(BaseModel):
     _db_manager = db_manager
 
     def __init__(self, **kwargs) -> None:
-        self.id = kwargs.get('id')
-        self.name = kwargs.get('name')
-        self.reading = kwargs.get('reading')
+        self.id = kwargs.get("id")
+        self.name = kwargs.get("name")
+        self.reading = kwargs.get("reading")
+
         self.pref_id = kwargs.get("pref_id")
 
 
@@ -45,6 +47,6 @@ class Holiday(BaseModel):
     _db_manager = db_manager
 
     def __init__(self, **kwargs) -> None:
-        self.id = kwargs.get('id')
-        self.name = kwargs.get('name')
-        self.date = kwargs.get('date')
+        self.id = kwargs.get("id")
+        self.name = kwargs.get("name")
+        self.date = kwargs.get("date")
