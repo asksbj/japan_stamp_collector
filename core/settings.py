@@ -6,6 +6,10 @@ CORE_ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = CORE_ROOT.parent
 TMP_ROOT = PROJECT_ROOT / "tmp"
 
+DEFAULT_REQUEST_DELAY = 1.0
+DEFAULT_TIMEOUT = 30
+JAPAN_CITY_BASE_URL = "https://uub.jp/cty/"
+
 JPOST_BASE_URL = "https://www.post.japanpost.jp"
 FUKE_BASE_URL = f"{JPOST_BASE_URL}/kitte_hagaki/stamp/fuke"
 FUKE_HEADERS = {
@@ -17,7 +21,6 @@ FUKE_HEADERS = {
     "Accept-Language": "ja,en;q=0.9",
 }
 JPOST_REQUEST_TIMEOUT = 30
-DEFAULT_REQUEST_DELAY = 1.0
 REQUEST_DELAY_BEFORE_DOWNLOAD = 0.5
 
 GEO_INFO_REQUEST_TIMEOUT = 30
