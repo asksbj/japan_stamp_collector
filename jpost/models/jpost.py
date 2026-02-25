@@ -135,7 +135,7 @@ class Fuke(BaseModel):
                 p.en_name AS prefecture_en
             {base_join}
             {where_clause}
-            ORDER BY f.start_date IS NULL, f.start_date, f.id
+            ORDER BY f.abolition, c.id IS NULL, c.id, f.id
             LIMIT %s OFFSET %s
         """
 

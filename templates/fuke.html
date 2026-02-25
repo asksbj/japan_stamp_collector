@@ -60,7 +60,7 @@
                   <option
                     v-for="pref in prefectures"
                     :key="pref.id"
-                    :value="pref.id"
+                    :value="pref.pref_id"
                   >
                     {{ padPref(pref.pref_id) }} ｜ {{ pref.full_name }} ({{ pref.en_name }})
                   </option>
