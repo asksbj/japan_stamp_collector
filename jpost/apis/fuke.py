@@ -1,6 +1,7 @@
 from typing import List, Optional
 from fastapi import APIRouter, Query
 
+from core.settings import FUKE_IMAGE_URL_PREFIX
 from jpost.apis.models import CityOut, FukeItemOut, FukeSearchResponse, PrefectureOut
 from jpost.models.administration import City, Prefecture
 from jpost.models.jpost import Fuke
@@ -51,11 +52,16 @@ def search_fuke(
     page: int = Query(1, ge=1),
     page_size: int = Query(12, ge=1, le=100),
 ) -> FukeSearchResponse:
-    fuke_details = Fuke.get_fuke_details(pref_id=pref_id, city_id=city_id, jpost_id=jpost_id, abolition=abolition, page=page, page_size=page_size)
+    fuke_details, total = Fuke.get_fuke_details_with_total(
+        pref_id=pref_id,
+        city_id=city_id,
+        jpost_id=jpost_id,
+        abolition=abolition,
+        page=page,
+        page_size=page_size,
+    )
 
-    total = len(fuke_details)
-
-    if total == 0:
+    if total == 0 or not fuke_details:
         return FukeSearchResponse(total=0, page=page, page_size=page_size, items=[])
 
     items: List[FukeItemOut] = []
@@ -63,7 +69,15 @@ def search_fuke(
         f_id = f.get("id")
         name = f.get("name")
         abolition = f.get("abolition")
-        image_url = f.get("image_url")
+        raw_image = f.get("image_url") or ""
+        pref_en = f.get("prefecture_en") or ""
+        # If image is already a full URL, use it as-is; otherwise build from configurable prefix.
+        if raw_image.startswith("http://") or raw_image.startswith("https://"):
+            image_url = raw_image
+        elif raw_image and pref_en:
+            image_url = f"{FUKE_IMAGE_URL_PREFIX.rstrip('/')}/{pref_en}/images/{raw_image.lstrip('/')}"
+        else:
+            image_url = None
         start_date = f.get("start_date")
         description = f.get("description")
         author = f.get("author")

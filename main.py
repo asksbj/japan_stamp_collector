@@ -1,11 +1,18 @@
-from pathlib import Path
-
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from core.settings import APP_NAME_EN, APP_NAME_JA, APP_NAME_ZH, STATIC_ROOT, TEMPLATES_ROOT
+from core.settings import (
+    APP_NAME_EN,
+    APP_NAME_JA,
+    APP_NAME_ZH,
+    STATIC_ROOT,
+    TEMPLATES_ROOT,
+    FUKE_IMAGE_ENABLE_LOCAL,
+    FUKE_IMAGE_ROOT,
+    FUKE_IMAGE_URL_PREFIX,
+)
 from jpost.apis.fuke import router as fuke_router
 
 
@@ -15,6 +22,15 @@ static_dir = STATIC_ROOT
 templates_dir = TEMPLATES_ROOT
 
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+# Serve local Fuke images from TMP_ROOT (or configured FUKE_IMAGE_ROOT).
+if FUKE_IMAGE_ENABLE_LOCAL and FUKE_IMAGE_ROOT.exists():
+    app.mount(
+        FUKE_IMAGE_URL_PREFIX,
+        StaticFiles(directory=FUKE_IMAGE_ROOT),
+        name="fuke-images",
+    )
+
 templates = Jinja2Templates(directory=str(templates_dir))
 
 
