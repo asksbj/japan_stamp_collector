@@ -11,28 +11,8 @@
       <div class="side-card">
         <h2 class="side-heading">風景印 · Fuke</h2>
         <p class="side-intro">
-          Scenic stamps collected from the Japan Post website, searchable by prefecture / city.
+          Fuke collected from the Japan Post website, searchable by prefecture / city / post office name.
         </p>
-        <ul class="side-list">
-          <li class="side-list-item side-list-item-active">
-            <div class="side-list-title">
-              <span class="side-dot side-dot-fuke"></span>
-              <span>Browse by prefecture / city</span>
-            </div>
-            <p class="side-list-text">
-              Step by step from the Japan map to specific post offices, breaking down the journey into collectable points.
-            </p>
-          </li>
-          <li class="side-list-item">
-            <div class="side-list-title">
-              <span class="side-dot"></span>
-              <span>By post office / route (coming soon)</span>
-            </div>
-            <p class="side-list-text">
-              Future features will include filtering scenic stamps by post office, route, or theme.
-            </p>
-          </li>
-        </ul>
       </div>
     </aside>
 
@@ -40,12 +20,10 @@
       <div id="fuke-app" class="fuke-app-root">
         <section class="filter-strip">
           <div class="filter-header">
-            <h1 class="filter-title">Search scenic stamps by prefecture / city</h1>
-            <p class="filter-subtitle">
-              Select prefecture / city, view the list of scenic stamps that can be collected in that area.
-            </p>
+            <h1 class="filter-title">Search Fuke</h1>
           </div>
           <div class="filter-controls">
+            <div class="filter-controls-row filter-controls-row-top">
             <div class="filter-control">
               <label for="prefecture-select" class="filter-label">
                 都道府県 Prefecture
@@ -56,7 +34,7 @@
                   v-model="selectedPrefId"
                   @change="onPrefectureChange"
                 >
-                  <option :value="null">Select prefecture / city…</option>
+                  <option :value="null">Select prefecture…</option>
                   <option
                     v-for="pref in prefectures"
                     :key="pref.id"
@@ -83,7 +61,7 @@
                   @change="onCityChange"
                 >
                   <option :value="null">
-                    {{ selectedPrefId ? 'Select city…' : 'Select prefecture / city…' }}
+                    {{ selectedPrefId ? 'Select city…' : 'Select prefecture first…' }}
                   </option>
                   <option
                     v-for="city in cities"
@@ -98,16 +76,30 @@
                 </span>
               </div>
             </div>
+            </div>
 
+            <div class="filter-controls-row filter-controls-row-bottom">
+            <div class="filter-secondary-controls">
+              <label for="office-name-input" class="filter-label">
+                郵便局名 Post office
+              </label>
+              <input
+                id="office-name-input"
+                type="text"
+                class="filter-text-input"
+                v-model="officeName"
+                placeholder="Post office name (e.g. 東京中央郵便局)…"
+              />
+            </div>
             <div class="filter-control filter-control-actions">
               <button
                 class="btn-primary btn-sm"
                 type="button"
                 @click="applyFilter"
-                :disabled="loading.search || !selectedPrefId"
+                :disabled="loading.search || !hasAnyCriteria"
               >
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <span>Start search</span>
+                <span>Search</span>
               </button>
               <button
                 class="btn-ghost btn-sm"
@@ -118,20 +110,7 @@
                 Reset
               </button>
             </div>
-          </div>
-          <div class="filter-meta">
-            <span class="filter-meta-item">
-              <span class="meta-label">Current filter</span>
-              <span class="meta-value">
-                {{ currentFilterLabel }}
-              </span>
-            </span>
-            <span class="filter-meta-item">
-              <span class="meta-label">Results on this page</span>
-              <span class="meta-value">
-                {{ items.length }} fukes
-              </span>
-            </span>
+            </div>
           </div>
         </section>
 

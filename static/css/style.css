@@ -562,10 +562,24 @@ body {
 
 .filter-controls {
   margin-top: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.filter-controls-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1.4fr) auto;
   gap: 0.9rem;
-  align-items: flex-end;
+  align-items: end;
+}
+
+.filter-controls-row-top {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.filter-controls-row-bottom {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
 }
 
 .filter-control {
@@ -629,6 +643,28 @@ body {
 .filter-meta-item {
   display: inline-flex;
   gap: 0.45rem;
+}
+
+.filter-secondary-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.filter-text-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid #d2c2a8;
+  font-size: 0.82rem;
+  background-color: #fffaf4;
+  color: #2f3437;
+}
+
+.filter-text-input:disabled {
+  background-color: #f4e6d7;
+  color: #8a8377;
 }
 
 .results-section {
@@ -737,7 +773,7 @@ body {
 
 .fuke-card-body {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.7fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.7fr);
   gap: 0.6rem;
 }
 
@@ -835,12 +871,16 @@ body {
     inset: 0.8rem 10% auto auto;
   }
 
-  .filter-controls {
+  .filter-control-actions {
+    justify-content: flex-start;
+  }
+
+  .filter-controls-row-top {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .filter-control-actions {
-    justify-content: flex-start;
+  .filter-controls-row-bottom {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

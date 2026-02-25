@@ -12,6 +12,7 @@
         cities: [],
         selectedPrefId: null,
         selectedCityId: null,
+        officeName: "",
 
         items: [],
         page: 1,
@@ -30,6 +31,9 @@
       loadingAny() {
         return this.loading.prefectures || this.loading.cities || this.loading.search;
       },
+      hasAnyCriteria() {
+        return !!(this.selectedPrefId || this.selectedCityId || (this.officeName && this.officeName.trim()));
+      },
       totalPages() {
         if (this.pageSize <= 0) return 0;
         return Math.max(1, Math.ceil(this.total / this.pageSize));
@@ -38,11 +42,14 @@
         return this.page < this.totalPages;
       },
       currentFilterLabel() {
-        const pref = this.prefectures.find((p) => p.id === this.selectedPrefId);
+        const pref = this.prefectures.find((p) => p.pref_id === this.selectedPrefId);
         const city = this.cities.find((c) => c.id === this.selectedCityId);
-        if (!pref && !city) return "No prefecture / city selected";
-        if (pref && !city) return `${pref.full_name} (${pref.en_name})`;
-        return `${pref.full_name} · ${city.name}`;
+        const parts = [];
+        if (pref) parts.push(`${pref.full_name} (${pref.en_name})`);
+        if (city) parts.push(city.name);
+        if (this.officeName) parts.push(`Office: ${this.officeName}`);
+        if (!parts.length) return "No prefecture / city selected";
+        return parts.join(" · ");
       },
     },
     methods: {
@@ -105,6 +112,9 @@
           const searchParams = new URLSearchParams();
           if (this.selectedPrefId) searchParams.set("pref_id", String(this.selectedPrefId));
           if (this.selectedCityId) searchParams.set("city_id", String(this.selectedCityId));
+          if (this.officeName && this.officeName.trim()) {
+            searchParams.set("jpost_name", this.officeName.trim());
+          }
           searchParams.set("page", String(this.page));
           searchParams.set("page_size", String(this.pageSize));
 
@@ -130,6 +140,7 @@
       resetFilter() {
         this.selectedPrefId = null;
         this.selectedCityId = null;
+        this.officeName = "";
         this.page = 1;
         this.total = 0;
         this.items = [];

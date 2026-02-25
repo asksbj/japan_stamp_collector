@@ -1,4 +1,5 @@
 from typing import Optional, List
+from xxlimited import Str
 from core.database import db_manager
 from models.base import BaseModel
 
@@ -66,7 +67,7 @@ class Fuke(BaseModel):
         cls,
         pref_id: Optional[int] = None,
         city_id: Optional[int] = None,
-        jpost_id: Optional[int] = None,
+        jpost_name: Optional[str] = None,
         abolition: Optional[bool] = None,
     ) -> tuple[str, list]:
         conditions = []
@@ -80,9 +81,9 @@ class Fuke(BaseModel):
             conditions.append("AND c.id = %s")
             params.append(city_id)
 
-        if jpost_id is not None:
-            conditions.append("AND f.jpost_id = %s")
-            params.append(jpost_id)
+        if jpost_name is not None:
+            conditions.append("AND o.name = %s")
+            params.append(jpost_name)
 
         if abolition is not None:
             conditions.append("AND f.abolition = %s")
@@ -96,7 +97,7 @@ class Fuke(BaseModel):
         cls, 
         pref_id: Optional[int] = None, 
         city_id: Optional[int] = None,
-        jpost_id: Optional[int] = None,
+        jpost_name: Optional[str] = None,
         abolition: Optional[bool] = None,
         page: int = 1,
         page_size: int = 12,
@@ -106,7 +107,7 @@ class Fuke(BaseModel):
         where_clause, params = cls._build_where_clause(
             pref_id=pref_id,
             city_id=city_id,
-            jpost_id=jpost_id,
+            jpost_name=jpost_name,
             abolition=abolition,
         )
 
@@ -165,7 +166,7 @@ class Fuke(BaseModel):
         cls,
         pref_id: Optional[int] = None,
         city_id: Optional[int] = None,
-        jpost_id: Optional[int] = None,
+        jpost_name: Optional[str] = None,
         abolition: Optional[bool] = None,
         page: int = 1,
         page_size: int = 12,
@@ -173,7 +174,7 @@ class Fuke(BaseModel):
         where_clause, params = cls._build_where_clause(
             pref_id=pref_id,
             city_id=city_id,
-            jpost_id=jpost_id,
+            jpost_name=jpost_name,
             abolition=abolition,
         )
 
@@ -195,7 +196,7 @@ class Fuke(BaseModel):
         items = cls.get_fuke_details(
             pref_id=pref_id,
             city_id=city_id,
-            jpost_id=jpost_id,
+            jpost_name=jpost_name,
             abolition=abolition,
             page=page,
             page_size=page_size,

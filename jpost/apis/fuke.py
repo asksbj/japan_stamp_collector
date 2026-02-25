@@ -47,7 +47,7 @@ def list_cities(pref_id: int = Query(..., gt=0)) -> List[CityOut]:
 def search_fuke(
     pref_id: Optional[int] = Query(None, gt=0),
     city_id: Optional[int] = Query(None, gt=0),
-    jpost_id: Optional[int] = Query(None, gt=0),
+    jpost_name: Optional[str] = Query(None),
     abolition: Optional[bool] = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(12, ge=1, le=100),
@@ -55,7 +55,7 @@ def search_fuke(
     fuke_details, total = Fuke.get_fuke_details_with_total(
         pref_id=pref_id,
         city_id=city_id,
-        jpost_id=jpost_id,
+        jpost_name=jpost_name,
         abolition=abolition,
         page=page,
         page_size=page_size,
