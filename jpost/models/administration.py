@@ -1,3 +1,5 @@
+from typing import List
+
 from core.database import db_manager
 from models.base import BaseModel
 
@@ -40,6 +42,16 @@ class City(BaseModel):
         self.reading = kwargs.get("reading")
 
         self.pref_id = kwargs.get("pref_id")
+
+    @classmethod
+    def get_by_pref_id(cls, pref_id: int) -> List["City"]:
+        if not pref_id:
+            return []
+
+        query = f"SELECT * FROM {cls.get_table_name()} WHERE pref_id = %s"
+        params = (pref_id, )
+
+        return cls.get_db_results(query, params)
 
     @classmethod
     def get_by_name_and_pref(cls, name: str, pref_id: int) -> "City":

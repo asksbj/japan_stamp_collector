@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block head_extra %}
+  <script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
+{% endblock head_extra %}
+
+{% block content %}
+{% raw %}
+  <section class="layout-grid layout-grid-fuke">
+    <aside class="side-column">
+      <div class="side-card">
+        <h2 class="side-heading">風景印 · Fuke</h2>
+        <p class="side-intro">
+          Fuke collected from the Japan Post website, searchable by prefecture / city / post office name.
+        </p>
+      </div>
+    </aside>
+
+    <section class="main-column">
+      <div id="fuke-app" class="fuke-app-root">
+        <section class="filter-strip">
+          <div class="filter-header">
+            <h1 class="filter-title">Search Fuke</h1>
+          </div>
+          <div class="filter-controls">
+            <div class="filter-controls-row filter-controls-row-top">
+            <div class="filter-control">
+              <label for="prefecture-select" class="filter-label">
+                都道府県 Prefecture
+              </label>
+              <div class="filter-select-wrapper" :class="{ 'is-loading': loading.prefectures }">
+                <select
+                  id="prefecture-select"
+                  v-model="selectedPrefId"
+                  @change="onPrefectureChange"
+                >
+                  <option :value="null">Select prefecture…</option>
+                  <option
+                    v-for="pref in prefectures"
+                    :key="pref.id"
+                    :value="pref.pref_id"
+                  >
+                    {{ padPref(pref.pref_id) }} ｜ {{ pref.full_name }} ({{ pref.en_name }})
+                  </option>
+                </select>
+                <span class="filter-select-icon">
+                  <i class="fa-solid fa-chevron-down"></i>
+                </span>
+              </div>
+            </div>
+
+            <div class="filter-control">
+              <label for="city-select" class="filter-label">
+                市郡区 City
+              </label>
+              <div class="filter-select-wrapper" :class="{ 'is-disabled': !selectedPrefId, 'is-loading': loading.cities }">
+                <select
+                  id="city-select"
+                  v-model="selectedCityId"
+                  :disabled="!selectedPrefId"
+                  @change="onCityChange"
+                >
+                  <option :value="null">
+                    {{ selectedPrefId ? 'Select city…' : 'Select prefecture first…' }}
+                  </option>
+                  <option
+                    v-for="city in cities"
+                    :key="city.id"
+                    :value="city.id"
+                  >
+                    {{ city.name }} ({{ city.reading || 'よみかた' }})
+                  </option>
+                </select>
+                <span class="filter-select-icon">
+                  <i class="fa-solid fa-chevron-down"></i>
+                </span>
+              </div>
+            </div>
+            </div>
+
+            <div class="filter-controls-row filter-controls-row-bottom">
+            <div class="filter-secondary-controls">
+              <label for="office-name-input" class="filter-label">
+                郵便局名 Post office
+              </label>
+              <input
+                id="office-name-input"
+                type="text"
+                class="filter-text-input"
+                v-model="officeName"
+                placeholder="Post office name (e.g. 東京中央郵便局)…"
+              />
+            </div>
+            <div class="filter-control filter-control-actions">
+              <button
+                class="btn-primary btn-sm"
+                type="button"
+                @click="applyFilter"
+                :disabled="loading.search || !hasAnyCriteria"
+              >
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Search</span>
+              </button>
+              <button
+                class="btn-ghost btn-sm"
+                type="button"
+                @click="resetFilter"
+                :disabled="loadingAny"
+              >
+                Reset
+              </button>
+            </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="results-section">
+          <div v-if="loading.search" class="results-state">
+            <div class="results-spinner"></div>
+            <p>Loading scenic stamp data from local database…</p>
+          </div>
+          <div v-else-if="error" class="results-state results-state-error">
+            <p>{{ error }}</p>
+          </div>
+          <div v-else-if="!items.length" class="results-state">
+            <p>No results. Please select a prefecture / city, or adjust the filter conditions.</p>
+          </div>
+          <div v-else class="results-grid">
+            <article
+              v-for="item in items"
+              :key="item.id"
+              class="fuke-card"
+            >
+              <div class="fuke-card-header">
+                <div class="fuke-card-title">
+                  <span class="fuke-name">{{ item.name }}</span>
+                  <span
+                    class="fuke-tag fuke-tag-status"
+                    :class="{ 'fuke-tag-abolished': item.abolition }"
+                  >
+                    {{ item.abolition ? '廃止' : '現行' }}
+                  </span>
+                </div>
+                <div class="fuke-card-meta">
+                  <span class="meta-chip">
+                    <i class="fa-regular fa-compass"></i>
+                    <span>{{ item.prefecture_name }} · {{ item.city_name }}</span>
+                  </span>
+                  <span v-if="item.start_date" class="meta-chip">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span>使用開始 {{ item.start_date }}</span>
+                  </span>
+                </div>
+              </div>
+
+              <div class="fuke-card-body">
+                <div class="fuke-card-image" v-if="item.image_url">
+                  <img :src="item.image_url" :alt="item.name" loading="lazy" />
+                </div>
+                <div class="fuke-card-details">
+                  <p class="office-name">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span>{{ item.jpost_office_name }}</span>
+                  </p>
+                  <p class="office-address">
+                    <span class="office-postcode">〒{{ item.jpost_office_postcode }}</span>
+                    <span class="office-address-text">{{ item.jpost_office_address }}</span>
+                  </p>
+                  <p v-if="item.description" class="fuke-description">
+                    {{ item.description }}
+                  </p>
+                  <p v-if="item.author" class="fuke-author">
+                    <span class="meta-label">図案作者</span>
+                    <span class="meta-value">{{ item.author }}</span>
+                  </p>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div v-if="items.length" class="results-pagination">
+            <button
+              class="btn-ghost btn-sm"
+              type="button"
+              @click="prevPage"
+              :disabled="page <= 1 || loading.search"
+            >
+              <i class="fa-solid fa-arrow-left-long"></i>
+              <span>Previous page</span>
+            </button>
+            <span class="pagination-status">
+              <span class="meta-label">Current page</span>
+              <span class="meta-value">Page {{ page }}</span>
+            </span>
+            <button
+              class="btn-ghost btn-sm"
+              type="button"
+              @click="nextPage"
+              :disabled="!hasNextPage || loading.search"
+            >
+              <span>Next page</span>
+              <i class="fa-solid fa-arrow-right-long"></i>
+            </button>
+          </div>
+        </section>
+      </div>
+    </section>
+  </section>
+{% endraw %}
+{% endblock content %}
+
+{% block body_scripts %}
+  <script src="{{ url_for('static', path='js/fuke.js') }}"></script>
+{% endblock body_scripts %}
+
