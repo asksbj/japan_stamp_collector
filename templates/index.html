@@ -1,119 +1,121 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <section class="layout-grid">
-    <aside class="side-column">
-      <div class="side-card">
-        <h2 class="side-heading">Collections</h2>
-        <ul class="side-list">
-          <li class="side-list-item side-list-item-active">
-            <div class="side-list-title">
-              <span class="side-dot side-dot-fuke"></span>
-              <span>風景印 Fuke</span>
-            </div>
-            <p class="side-list-text">
-              Scenic stamps collected from the Japan Post website, indexed by prefecture / city.
-            </p>
-            <a href="{{ url_for('fuke_page') }}" class="side-cta-link">
-              <span>Open the scenic stamp index</span>
-              <i class="fa-solid fa-arrow-right-long"></i>
-            </a>
-          </li>
-          <li class="side-list-item">
-            <div class="side-list-title">
-              <span class="side-dot"></span>
-              <span>Station stamps (coming soon)</span>
-            </div>
-            <p class="side-list-text">
-              Plans to support station stamps from various locations, combined with route and itinerary planning.
-            </p>
-          </li>
-          <li class="side-list-item">
-            <div class="side-list-title">
-              <span class="side-dot"></span>
-              <span>Manhole cards / other cards (coming soon)</span>
-            </div>
-            <p class="side-list-text">
-              Future features will include collecting elements related to "city design" in various locations in Japan.
-            </p>
-          </li>
-        </ul>
+  <section class="home-hero-section">
+    <article class="hero-card">
+      <div class="hero-text">
+        <h1 class="hero-title">
+          Japan Stamp Collector
+        </h1>
+        <p class="hero-lead">
+          Turn post offices, stations, and street corners into memory coordinates that can be “collected” in your own travel journal.
+        </p>
+        <div class="hero-actions">
+          <a href="{{ url_for('fuke_page') }}" class="btn-primary">
+            <i class="fa-solid fa-stamp"></i>
+            <span>Start with Fukei-in</span>
+          </a>
+          <button class="btn-ghost" type="button" disabled>
+            <i class="fa-regular fa-map"></i>
+            <span>Nearby collectable points (coming soon)</span>
+          </button>
+        </div>
       </div>
-    </aside>
+    </article>
 
-    <section class="main-column">
-      <article class="hero-card">
-        <div class="hero-text">
-          <h1 class="hero-title">
-            Japan Stamp Collector
-          </h1>
-          <p class="hero-lead">
-            Turn post offices, stations, and street corners into memory coordinates that can be "collected stamps".
-          </p>
-          <p class="hero-copy">
-            From scenic stamps, we will gradually collect elements in various locations in Japan: post office scenic stamps, station commemorative stamps, manhole cards, etc.
-            Not just a database, but a travel journal that can be slowly read, marked, and compared on a map.
-          </p>
-          <div class="hero-actions">
-            <a href="{{ url_for('fuke_page') }}" class="btn-primary">
-              <i class="fa-solid fa-stamp"></i>
-              <span>Start with scenic stamps</span>
-            </a>
-            <button class="btn-ghost" type="button" disabled>
-              <i class="fa-regular fa-map"></i>
-              <span>Nearby collectable points (coming soon)</span>
-            </button>
-          </div>
-        </div>
-        <div class="hero-side">
-          <div class="hero-stats">
-            <div class="hero-stamp-card">
-              <div class="hero-stamp-header">
-                <span class="hero-stamp-label">Fuke Module</span>
-                <span class="hero-stamp-tag">beta</span>
-              </div>
-              <p class="hero-stamp-text">
-                Data from the Japan Post website and local MySQL storage, searchable by prefecture / city.
-              </p>
-              <div class="hero-stamp-meta">
-                <span class="hero-stamp-meta-item">
-                  <span class="meta-label">Data source</span>
-                  <span class="meta-value">prefecture · city · jpost_office · fuke</span>
-                </span>
-                <span class="hero-stamp-meta-item">
-                  <span class="meta-label">Backend</span>
-                  <span class="meta-value">FastAPI + MySQL</span>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </article>
+    
+  </section>
 
-      <section class="roadmap-strip">
-        <div class="roadmap-item">
-          <span class="roadmap-label">Step 1</span>
-          <p class="roadmap-title">Browse scenic stamps by prefecture / city</p>
-          <p class="roadmap-text">
-            Select prefecture / city, view the list of scenic stamps that can be collected in that area.
+  <section class="collections-grid">
+    <h2 class="collections-heading">Collections</h2>
+    <div class="collections-row">
+      <a href="{{ url_for('fuke_page') }}" class="collection-card collection-card-active">
+        <div class="collection-thumb">
+          <img src="{{ url_for('static', path='img/fuke_sample.png') }}" alt="Fukei-in sample" />
+        </div>
+        <div class="collection-info">
+          <div class="collection-title-row">
+            <span class="collection-dot collection-dot-fuke"></span>
+            <span class="collection-name">Fukei-in · Scenic Stamps</span>
+          </div>
+          <p class="collection-text">
+            Scenic stamps from Japan Post, indexed by prefecture and city with local image cache.
           </p>
         </div>
-        <div class="roadmap-item">
-          <span class="roadmap-label">Step 2</span>
-          <p class="roadmap-title">Add a map view</p>
-          <p class="roadmap-text">
-            View post offices / stations and collectable stamps or cards on the map.
+      </a>
+
+      <div class="collection-card collection-card-disabled">
+        <div class="collection-thumb">
+          <img src="{{ url_for('static', path='img/eki_stamp_sample.png') }}" alt="Station stamps sample" />
+        </div>
+        <div class="collection-info">
+          <div class="collection-title-row">
+            <span class="collection-dot"></span>
+            <span class="collection-name">Station Stamps</span>
+            <span class="collection-tag">Coming soon</span>
+          </div>
+          <p class="collection-text">
+            Station stamps organised by railway line and area, designed for itinerary-style browsing.
           </p>
         </div>
-        <div class="roadmap-item">
-          <span class="roadmap-label">Step 3</span>
-          <p class="roadmap-title">My collection & itinerary</p>
-          <p class="roadmap-text">
-            After logging in, record the elements you have already collected and the future destinations you want to visit.
+      </div>
+
+      <div class="collection-card collection-card-disabled">
+        <div class="collection-thumb">
+          <img src="{{ url_for('static', path='img/manhole_sample.png') }}" alt="Manhole cards sample" />
+        </div>
+        <div class="collection-info">
+          <div class="collection-title-row">
+            <span class="collection-dot"></span>
+            <span class="collection-name">Manhole Cards</span>
+            <span class="collection-tag">Coming soon</span>
+          </div>
+          <p class="collection-text">
+            Manhole cards.
           </p>
         </div>
-      </section>
-    </section>
+      </div>
+
+      <div class="collection-card collection-card-disabled">
+        <div class="collection-thumb">
+          <img src="{{ url_for('static', path='img/others_sample.png') }}" alt="Others sample" />
+        </div>
+        <div class="collection-info">
+          <div class="collection-title-row">
+            <span class="collection-dot"></span>
+            <span class="collection-name">Others</span>
+            <span class="collection-tag">Coming soon</span>
+          </div>
+          <p class="collection-text">
+            Others.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="roadmap-strip">
+    <div class="roadmap-item">
+      <span class="roadmap-label">Step 1</span>
+      <p class="roadmap-title">Browse Fukei-in by prefecture / city</p>
+      <p class="roadmap-text">
+        Select prefecture / city, view the list of Fuke-in that can be collected in that area.
+      </p>
+    </div>
+    <div class="roadmap-item">
+      <span class="roadmap-label">Step 2</span>
+      <p class="roadmap-title">Add a map view</p>
+      <p class="roadmap-text">
+        View post offices / stations and collectable stamps or cards on the map.
+      </p>
+    </div>
+    <div class="roadmap-item">
+      <span class="roadmap-label">Step 3</span>
+      <p class="roadmap-title">My collection and wishlist</p>
+      <p class="roadmap-text">
+        After logging in, record what you’ve already collected and where you still want to go.
+      </p>
+    </div>
   </section>
 {% endblock content %}
 

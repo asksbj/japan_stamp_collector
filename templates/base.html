@@ -63,7 +63,7 @@
             href="{{ url_for('fuke_page') }}"
             class="nav-link {% if request.url.path.startswith('/fuke') %}nav-link-active{% endif %}"
           >
-            <span>Fuke</span>
+            <span>Fukei-in</span>
           </a>
           <button class="nav-pill nav-pill-muted" type="button" disabled>
             <span class="nav-pill-label">Station stamps</span>
@@ -83,15 +83,6 @@
       <main class="app-main">
         {% block content %}{% endblock content %}
       </main>
-
-      <footer class="app-footer">
-        <div class="footer-inner">
-          <span class="footer-label">Japan Stamp Collector</span>
-          <span class="footer-meta">
-            A travel journal for slowly collecting stamps, station stamps, manhole cards, and other items during your travels in Japan. Future features will include maps and more categories.
-          </span>
-        </div>
-      </footer>
     </div>
 
     {% block body_scripts %}{% endblock body_scripts %}
