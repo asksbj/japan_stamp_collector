@@ -125,7 +125,7 @@ class PostOfficeLocationIngestor(BaseIngestor):
             logging.info(f"Fuke ingestor record not ready for location info fetching, task_type={self._task.task_type}, owner={self._task.owner}, date={date}")
             return self.NOT_READY_FOR_WORK
         elif ingestor_record.state != FukeIngestorRecords.StateEnum.DETAILED.value:
-            return self.FAILURE
+            return self.NO_WORK_TO_DO
         
         result = asyncio.run(self._get_location_info())
         if result == self.SUCCESS:
