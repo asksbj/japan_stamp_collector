@@ -1,10 +1,15 @@
 import os
 from pathlib import Path
 
+APP_NAME_EN = "Japan Stamp Collector"
+APP_NAME_JA = "日本スタンプ・カードコレクター"
+APP_NAME_ZH = "日本印章・卡片收集者"
 
 CORE_ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = CORE_ROOT.parent
 TMP_ROOT = PROJECT_ROOT / "tmp"
+STATIC_ROOT = PROJECT_ROOT / "static"
+TEMPLATES_ROOT = PROJECT_ROOT / "templates"
 
 DEFAULT_REQUEST_DELAY = 1.0
 DEFAULT_TIMEOUT = 30

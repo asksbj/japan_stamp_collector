@@ -5,15 +5,14 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from core.settings import APP_NAME_EN, APP_NAME_JA, APP_NAME_ZH, STATIC_ROOT, TEMPLATES_ROOT
 from jpost.apis.fuke import router as fuke_router
 
 
-BASE_DIR = Path(__file__).resolve().parent
+app = FastAPI(title=f"{APP_NAME_EN}")
 
-app = FastAPI(title="Japan Stamp Collector / 日本印章・卡片收集者")
-
-static_dir = BASE_DIR / "static"
-templates_dir = BASE_DIR / "templates"
+static_dir = STATIC_ROOT
+templates_dir = TEMPLATES_ROOT
 
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 templates = Jinja2Templates(directory=str(templates_dir))
@@ -25,9 +24,9 @@ async def read_home(request: Request) -> HTMLResponse:
         "index.html",
         {
             "request": request,
-            "app_name_en": "Japan Stamp Collector",
-            "app_name_ja": "日本スタンプ・カードコレクター",
-            "app_name_zh": "日本印章・卡片收集者",
+            "app_name_en": APP_NAME_EN,
+            "app_name_ja": APP_NAME_JA,
+            "app_name_zh": APP_NAME_ZH,
         },
     )
 
@@ -35,11 +34,11 @@ async def read_home(request: Request) -> HTMLResponse:
 @app.get("/fuke", response_class=HTMLResponse)
 async def fuke_page(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(
-        "fuke.html",
+        "fuke.html",    
         {
             "request": request,
-            "app_name_en": "Japan Stamp Collector",
-            "app_name_zh": "日本印章・卡片收集者",
+            "app_name_en": APP_NAME_EN,
+            "app_name_zh": APP_NAME_ZH,
         },
     )
 

@@ -1,3 +1,4 @@
+from typing import Optional, List
 from core.database import db_manager
 from models.base import BaseModel
 
@@ -59,3 +60,71 @@ class Fuke(BaseModel):
             params = (name, jpost_id)
 
         return cls.get_db_results(query, params, fetch_one=True)
+
+    @classmethod
+    def get_fuke_details(
+        cls, 
+        pref_id: Optional[int] = None, 
+        city_id: Optional[int] = None,
+        jpost_id: Optional[int] = None,
+        abolition: Optional[bool] = None,
+        page: int = 1,
+        page_size: int = 12,
+    ) -> List[dict]:
+        offset = (page - 1) * page_size
+
+        conditions = []
+        params: list = []
+
+        if pref_id is not None:
+            conditions.append("AND p.pref_id = %s")
+            params.append(pref_id)
+
+        if city_id is not None:
+            conditions.append("AND c.id = %s")
+            params.append(city_id)
+
+        if jpost_id is not None:
+            conditions.append("AND f.jpost_id = %s")
+            params.append(jpost_id)
+
+        if abolition is not None:
+            conditions.append("AND f.abolition = %s")
+            params.append(int(abolition))
+
+        where_clause = " ".join(conditions)
+
+        base_join = """
+            FROM fuke f
+            JOIN jpost_office o ON f.jpost_id = o.id
+            LEFT JOIN city c ON o.city_id = c.id
+            JOIN prefecture p ON o.pref_id = p.pref_id
+            WHERE 1=1
+        """
+
+        data_sql = f"""
+            SELECT
+                f.id,
+                f.name,
+                f.abolition,
+                f.image_url,
+                f.start_date,
+                f.description,
+                f.author,
+                o.name AS jpost_office_name,
+                o.address AS jpost_office_address,
+                o.postcode AS jpost_office_postcode,
+                COALESCE(c.name, '') AS city_name,
+                p.full_name AS prefecture_name
+            {base_join}
+            {where_clause}
+            ORDER BY f.start_date IS NULL, f.start_date, f.id
+            LIMIT %s OFFSET %s
+        """
+
+        columns = ["id", "name", "abolition", "image_url", "start_date", "description", "author", "jpost_office_name", "jpost_office_address", "jpost_office_postcode", "city_name", "prefecture_name"]
+        data_params = list(params)
+        data_params.extend([page_size, offset])
+
+        rows = cls.get_db_manager().execute_query(data_sql, tuple(data_params), fetch_all=True)
+        return [dict(zip(columns, row)) for row in rows] if rows else []
