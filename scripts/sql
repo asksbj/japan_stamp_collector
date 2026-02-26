@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS city (
     FOREIGN KEY (pref_id) REFERENCES prefecture(pref_id)
 );
 
-CREATE TABLE IF NOT EXISTS jpost_office (
+CREATE TABLE IF NOT EXISTS facility (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(64) NOT NULL,
     address VARCHAR(255),
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS fuke (
     description VARCHAR(255),
     author VARCHAR(64),
     jpost_id INT,
-    FOREIGN KEY (jpost_id) REFERENCES jpost_office(id)
+    FOREIGN KEY (jpost_id) REFERENCES facility(id)
 );
 
 

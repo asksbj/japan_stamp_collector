@@ -5,8 +5,8 @@ from pathlib import Path
 
 from core.settings import TMP_ROOT
 from etl.runner import TaskRunner
-from models.administration import Prefecture, City
-from jpost.models.jpost import JPostOffice, Fuke
+from models.administration import Prefecture, City, Facility
+from jpost.models.jpost import Fuke
 
 
 logging.basicConfig(level=logging.INFO)
@@ -90,7 +90,7 @@ class FukeMigrator(TaskRunner):
         record: dict,
         pref_id: int,
         cities_by_pref: dict[int, list[tuple[str, int]]],
-    ) -> JPostOffice | None:
+    ) -> Facility | None:
         jpost_name = (record.get("post_office_name") or "").strip()
         if not jpost_name:
             return None
@@ -102,11 +102,11 @@ class FukeMigrator(TaskRunner):
         latitude, longtitude, postcode = self._parse_geo_from_address(address_obj)
         city_id = self._detect_city_id_from_location(location, pref_id, cities_by_pref)
 
-        existing = JPostOffice.get_by_name_and_pref(jpost_name, pref_id)
+        existing = Facility.get_by_name_and_pref(jpost_name, pref_id)
         if existing:
             jpost = existing
         else:
-            jpost = JPostOffice(name=jpost_name, pref_id=pref_id)
+            jpost = Facility(name=jpost_name, pref_id=pref_id)
 
         jpost.address = address
         jpost.postcode = postcode
