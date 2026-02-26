@@ -17,6 +17,7 @@ class TaskThread(threading.Thread):
         super().__init__()
         self._exit_flag = exit_flag
         self._task_runners = schedular.get_task_runners()
+        self._domain = schedular.get_domain()
         self._task = None
         self._retries = 0
 
@@ -50,7 +51,7 @@ class TaskThread(threading.Thread):
             self._task = None
 
     def _select_task(self):
-        task = Task.get_last_updated()
+        task = Task.get_last_updated(domain=self._domain)
         if task:
             timestamp = datetime.datetime.now()
             if task.last_update < timestamp:

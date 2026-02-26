@@ -4,7 +4,7 @@ import pykakasi
 
 from core.settings import PROJECT_ROOT
 from etl.runner import TaskRunner
-from jpost.models.administration import Prefecture, City
+from models.administration import Prefecture, City
 
 logging.basicConfig(level=logging.INFO)
 

@@ -13,7 +13,7 @@ from core.settings import (
     DEFAULT_REQUEST_DELAY,
 )
 from etl.runner import TaskRunner
-from jpost.models.administration import Prefecture
+from models.administration import Prefecture
 
 
 logging.basicConfig(level=logging.INFO)

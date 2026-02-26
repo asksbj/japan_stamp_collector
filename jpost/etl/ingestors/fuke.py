@@ -16,8 +16,8 @@ from core.settings import (
     REQUEST_DELAY_BEFORE_DOWNLOAD
 )
 from etl.runner import TaskRunner
+from models.administration import Prefecture
 from jpost.enums.text import JPTextEnum
-from jpost.models.administration import Prefecture
 from jpost.models.ingestor import FukeIngestorRecords
 
 

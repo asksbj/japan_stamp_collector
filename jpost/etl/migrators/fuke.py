@@ -5,7 +5,7 @@ from pathlib import Path
 
 from core.settings import TMP_ROOT
 from etl.runner import TaskRunner
-from jpost.models.administration import Prefecture, City
+from models.administration import Prefecture, City
 from jpost.models.jpost import JPostOffice, Fuke
 
 

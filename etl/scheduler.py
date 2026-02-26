@@ -13,6 +13,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 class TaskScheduler:
+    DOMAIN = None
     HEALTH_CHECK_PERIOD_SEC = 30
 
     @classmethod
@@ -23,13 +24,17 @@ class TaskScheduler:
     def get_task_runners(cls):
         raise NotImplementedError
 
-    @staticmethod
-    def enable_task(task_type: str, owner: str) -> None:
+    @classmethod
+    def get_domain(cls):
+        return cls.DOMAIN
+
+    @classmethod
+    def enable_task(cls, task_type: str, owner: str) -> None:
         last_update = datetime.datetime.now() - datetime.timedelta(minutes=30)
         task = Task.get_task_by_type_and_owner(task_type, owner)
         
         if not task:
-            task = Task(task_type=task_type, owner=owner)
+            task = Task(domain=cls.DOMAIN, task_type=task_type, owner=owner)
             task.save()
             logging.info(f"Created task {task_type} for owner {owner}")
         else:

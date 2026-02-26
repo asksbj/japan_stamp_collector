@@ -2,10 +2,11 @@ import argparse
 import logging
 
 from jpost.etl.scheduler import JPostTaskScheduler
-
+from manhole_card.etl.scheduler import ManholeCardTaskScheduler
 
 SCHEDULERS = {
     "jpost": JPostTaskScheduler,
+    "manhole_card": ManholeCardTaskScheduler,
     # Add more schedulers here in the future, e.g.:
     # "other": OtherTaskScheduler,
 }

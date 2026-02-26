@@ -17,7 +17,6 @@ class Prefecture(BaseModel):
         self.jpost_url = kwargs.get("jpost_url")
         self.pref_id = kwargs.get("pref_id")
 
-
     def to_en_dict(self):
         return {
             self.en_name: {

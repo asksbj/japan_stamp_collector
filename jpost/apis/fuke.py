@@ -2,8 +2,8 @@ from typing import List, Optional
 from fastapi import APIRouter, Query
 
 from core.settings import FUKE_IMAGE_URL_PREFIX
+from models.administration import City, Prefecture
 from jpost.apis.models import CityOut, FukeItemOut, FukeSearchResponse, PrefectureOut
-from jpost.models.administration import City, Prefecture
 from jpost.models.jpost import Fuke
 
 
