@@ -11,7 +11,7 @@
       <div class="side-card">
         <h2 class="side-heading">風景印 · Fuke</h2>
         <p class="side-intro">
-          Fuke collected from the Japan Post website, searchable by prefecture / city / post office name.
+          Official website: <a href="https://www.post.japanpost.jp/kitte_hagaki/stamp/fuke/" target="_blank">https://www.post.japanpost.jp/kitte_hagaki/stamp/fuke/</a>
         </p>
       </div>
     </aside>
@@ -21,6 +21,7 @@
         <section class="filter-strip">
           <div class="filter-header">
             <h1 class="filter-title">Search Fukei-in</h1>
+            <p class="filter-subtitle">Please use your browser's built-in translation feature for the displayed results.</p>
           </div>
           <div class="filter-controls">
             <div class="filter-controls-row filter-controls-row-top">
@@ -123,7 +124,7 @@
             <p>{{ error }}</p>
           </div>
           <div v-else-if="!items.length" class="results-state">
-            <p>No results. Please select a prefecture / city, or adjust the filter conditions.</p>
+            <p>No results. </p>
           </div>
           <div v-else class="results-grid">
             <article
@@ -167,10 +168,11 @@
                     <span class="office-address-text">{{ item.jpost_office_address }}</span>
                   </p>
                   <p v-if="item.description" class="fuke-description">
+                    <span class="meta-label">図案説明: </span>
                     {{ item.description }}
                   </p>
                   <p v-if="item.author" class="fuke-author">
-                    <span class="meta-label">図案作者</span>
+                    <span class="meta-label">図案作者: </span>
                     <span class="meta-value">{{ item.author }}</span>
                   </p>
                 </div>
@@ -190,7 +192,7 @@
             </button>
             <span class="pagination-status">
               <span class="meta-label">Current page</span>
-              <span class="meta-value">Page {{ page }}</span>
+              <span class="meta-value">{{ page }}</span>
             </span>
             <button
               class="btn-ghost btn-sm"

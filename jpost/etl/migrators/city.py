@@ -1,5 +1,7 @@
 import logging
 import json
+from unittest import result
+import pykakasi
 
 from core.settings import PROJECT_ROOT
 from jpost.etl.migrators.base import BaseMigrator
@@ -15,6 +17,13 @@ class CityMigrator(BaseMigrator):
     def _load_prefectures(cls) -> dict[str, Prefecture]:
         prefectures = Prefecture.get_all()
         return {p.en_name: p for p in prefectures}
+
+    @classmethod
+    def _parse_reading(cls, name: str) -> str:
+        kks = pykakasi.kakasi()
+        result = kks.convert(name)
+        roman = ''.join([item['hepburn'] for item in result]).capitalize()
+        return roman
 
     def migrate(self):
         dist_dir = PROJECT_ROOT / "dist"
@@ -41,6 +50,7 @@ class CityMigrator(BaseMigrator):
                     continue
 
                 city_dict["pref_id"] = pref_id
+                city_dict["reading"] = self._parse_reading(name)
                 new_cities.append(City(**city_dict))
 
             if new_cities:
