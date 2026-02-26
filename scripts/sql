@@ -67,5 +67,19 @@ CREATE TABLE IF NOT EXISTS fuke (
     FOREIGN KEY (jpost_id) REFERENCES facility(id)
 );
 
+CREATE TABLE IF NOT EXISTS manhole_card (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(128) NOT NULL,
+    series VARCHAR(32),
+    release_date VARCHAR(16),
+    image_url VARCHAR(255)
+);
 
+CREATE TABLE IF NOT EXISTS manhole_card_facility (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    manhole_card_id INT NOT NULL,
+    facility_id INT NOT NULL,
+    FOREIGN KEY (manhole_card_id) REFERENCES manhole_card(id),
+    FOREIGN KEY (facility_id) REFERENCES facility(id)
+);
 

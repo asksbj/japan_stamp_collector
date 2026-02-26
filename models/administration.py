@@ -100,3 +100,15 @@ class Facility(BaseModel):
         params = (name, pref_id)
 
         return cls.get_db_results(query, params, fetch_one=True)
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "address": self.address,
+            "postcode": self.postcode,
+            "latitude": self.latitude,
+            "longtitude": self.longtitude,
+            "business_hours": self.business_hours,
+            "pref_id": self.pref_id,
+            "city_id": self.city_id
+        }
