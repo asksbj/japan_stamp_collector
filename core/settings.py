@@ -13,7 +13,7 @@ TEMPLATES_ROOT = PROJECT_ROOT / "templates"
 
 # Fuke image configuration
 # Physical root where prefecture subdirectories (e.g. Hokkaido/images/...) are stored.
-FUKE_IMAGE_ROOT = Path(os.getenv("FUKE_IMAGE_ROOT", str(TMP_ROOT)))
+FUKE_IMAGE_ROOT = Path(os.getenv("FUKE_IMAGE_ROOT", str(TMP_ROOT / "fuke")))
 # Public URL prefix for serving Fuke images via FastAPI StaticFiles, e.g. "/fuke-images".
 FUKE_IMAGE_URL_PREFIX = os.getenv("FUKE_IMAGE_URL_PREFIX", "/fuke-images")
 # Whether to serve local images; can be turned off when images move to cloud.

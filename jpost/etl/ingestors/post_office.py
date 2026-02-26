@@ -65,7 +65,7 @@ class PostOfficeLocationIngestor(BaseIngestor):
     async def _get_location_info(self):
         key = self._task.owner
 
-        data_file = TMP_ROOT / key / "data.json"
+        data_file = TMP_ROOT / "fuke" / key / "data.json"
         if not data_file.exists():
             logging.error(f"Can not find data.json file for {key}")
             return self.FAILURE

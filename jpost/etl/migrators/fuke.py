@@ -160,9 +160,9 @@ class FukeMigrator(BaseMigrator):
         return fuke
 
     def migrate(self):
-        tmp_root = TMP_ROOT
-        if not tmp_root.exists():
-            logging.error(f"TMP_ROOT directory not found: {tmp_root}")
+        fuke_root = TMP_ROOT / "fuke"
+        if not fuke_root.exists():
+            logging.error(f"TMP_ROOT/fuke directory not found: {fuke_root}")
             return self.FAILURE
 
         prefectures = self._load_prefectures()
@@ -170,7 +170,7 @@ class FukeMigrator(BaseMigrator):
 
         changed = False
 
-        for pref_dir in tmp_root.iterdir():
+        for pref_dir in fuke_root.iterdir():
             if not pref_dir.is_dir():
                 continue
 
