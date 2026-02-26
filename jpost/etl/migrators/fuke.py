@@ -4,7 +4,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from core.settings import TMP_ROOT
-from jpost.etl.migrators.base import BaseMigrator
+from etl.runner import TaskRunner
 from jpost.models.administration import Prefecture, City
 from jpost.models.jpost import JPostOffice, Fuke
 
@@ -12,8 +12,8 @@ from jpost.models.jpost import JPostOffice, Fuke
 logging.basicConfig(level=logging.INFO)
 
 
-class FukeMigrator(BaseMigrator):
-    MIGRATE_INTERVAL_DAYS = 1
+class FukeMigrator(TaskRunner):
+    INTERVAL_DAYS = 1
     DESCRIPTION_MAX_LENTH = 250
     AUTHOR_MAX_LENTH = 28
 
@@ -159,7 +159,7 @@ class FukeMigrator(BaseMigrator):
             return None
         return fuke
 
-    def migrate(self):
+    def start(self):
         fuke_root = TMP_ROOT / "fuke"
         if not fuke_root.exists():
             logging.error(f"TMP_ROOT/fuke directory not found: {fuke_root}")

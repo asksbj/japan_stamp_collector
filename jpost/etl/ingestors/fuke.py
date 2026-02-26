@@ -15,8 +15,8 @@ from core.settings import (
     DEFAULT_REQUEST_DELAY, 
     REQUEST_DELAY_BEFORE_DOWNLOAD
 )
+from etl.runner import TaskRunner
 from jpost.enums.text import JPTextEnum
-from jpost.etl.ingestors.base import BaseIngestor
 from jpost.models.administration import Prefecture
 from jpost.models.ingestor import FukeIngestorRecords
 
@@ -44,7 +44,7 @@ class FukeIngestorMixin(object):
         return resp.text
         
 
-class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
+class FukeBasicIngestor(FukeIngestorMixin, TaskRunner):
 
     @classmethod
     def _parse_stamp_posts(cls, html: str) -> list[dict]:
@@ -173,7 +173,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
             logging.info(f"Skip prefecture {key}: no url")
             return self.FAILURE
         
-        out_dir = TMP_ROOT / key
+        out_dir = TMP_ROOT / "fuke" / key
         images_dir = out_dir / "images"
         if out_dir.exists():
             shutil.rmtree(out_dir)
@@ -207,7 +207,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
         logging.info(f"Data saved for {key}, file path: {data_path}, total records: {len(records)} ")
         return self.SUCCESS
 
-    def fetch(self):
+    def start(self):
         date = datetime.datetime.now().strftime("%Y-%m-%d")
         ingestor_record = FukeIngestorRecords.get_by_owner_and_date(self._task.owner, date)
 
@@ -230,7 +230,7 @@ class FukeBasicIngestor(FukeIngestorMixin, BaseIngestor):
         return result
 
 
-class FukeDetailIngestor(FukeIngestorMixin, BaseIngestor):
+class FukeDetailIngestor(FukeIngestorMixin, TaskRunner):
     TASK_RETRY_PERIOD = 20
 
     DETAIL_LABEL_MAPPING = {
@@ -279,7 +279,7 @@ class FukeDetailIngestor(FukeIngestorMixin, BaseIngestor):
     def _get_detail_info(self) -> bool:
         key = self._task.owner
 
-        data_file = TMP_ROOT / key / "data.json"
+        data_file = TMP_ROOT / "fuke" / key / "data.json"
         if not data_file.exists():
             logging.error(f"Can not find data.json file for {key}")
             return self.FAILURE
@@ -313,7 +313,7 @@ class FukeDetailIngestor(FukeIngestorMixin, BaseIngestor):
         else:
             return self.NO_WORK_TO_DO
 
-    def fetch(self):
+    def start(self):
         date = datetime.datetime.now().strftime("%Y-%m-%d")
         ingestor_record = FukeIngestorRecords.get_by_owner_and_date(self._task.owner, date)
         if not ingestor_record or ingestor_record.state == FukeIngestorRecords.StateEnum.CREATED.value:
