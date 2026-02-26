@@ -12,15 +12,16 @@ from core.settings import (
     DEFAULT_TIMEOUT,
     DEFAULT_REQUEST_DELAY,
 )
-from jpost.etl.ingestors.base import BaseIngestor
-from jpost.models.administration import Prefecture
+from etl.runner import TaskRunner
+from models.administration import Prefecture
 
 
 logging.basicConfig(level=logging.INFO)
 
 
-class CityIngestor(BaseIngestor):
+class CityIngestor(TaskRunner):
     TASK_TIMEOUT_SECS = 24*60*60
+    INTERVAL_DAYS = 7
 
     @classmethod
     def _load_prefectures(cls) -> dict[str, Prefecture]:
@@ -135,7 +136,7 @@ class CityIngestor(BaseIngestor):
 
         return records
 
-    def fetch(self):
+    def start(self):
         prefectures_by_en = self._load_prefectures()
         all_data: dict[str, list[dict]] = {}
 

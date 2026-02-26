@@ -7,7 +7,7 @@ import re
 
 from core.settings import TMP_ROOT, GEO_INFO_VENDORS
 from core.network import get_proxy_from_env
-from jpost.etl.ingestors.base import BaseIngestor
+from etl.runner import TaskRunner
 from jpost.models.ingestor import FukeIngestorRecords
 from jpost.utils.geo_info.factory import GeoInfoFactory
 
@@ -17,7 +17,9 @@ logging.basicConfig(level=logging.DEBUG)
 _last_request_time: float = 0
 
 
-class PostOfficeLocationIngestor(BaseIngestor):
+class PostOfficeLocationIngestor(TaskRunner):
+    INTERVAL_DAYS = 7
+
     GEO_INFO_CACHE: dict[str, dict[str, str]] = {}
     POSTCODE_RE = re.compile(r"\d{3}-\d{4}")
 
@@ -65,7 +67,7 @@ class PostOfficeLocationIngestor(BaseIngestor):
     async def _get_location_info(self):
         key = self._task.owner
 
-        data_file = TMP_ROOT / key / "data.json"
+        data_file = TMP_ROOT / "fuke" / key / "data.json"
         if not data_file.exists():
             logging.error(f"Can not find data.json file for {key}")
             return self.FAILURE
@@ -118,7 +120,7 @@ class PostOfficeLocationIngestor(BaseIngestor):
         else:
             return self.NO_WORK_TO_DO
         
-    def fetch(self):
+    def start(self):
         date = datetime.datetime.now().strftime("%Y-%m-%d")
         ingestor_record = FukeIngestorRecords.get_by_owner_and_date(self._task.owner, date)
         if not ingestor_record or ingestor_record.state in [FukeIngestorRecords.StateEnum.CREATED.value, FukeIngestorRecords.StateEnum.BASIC.value]:

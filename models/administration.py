@@ -17,7 +17,6 @@ class Prefecture(BaseModel):
         self.jpost_url = kwargs.get("jpost_url")
         self.pref_id = kwargs.get("pref_id")
 
-
     def to_en_dict(self):
         return {
             self.en_name: {
@@ -73,3 +72,43 @@ class Holiday(BaseModel):
         self.id = kwargs.get("id")
         self.name = kwargs.get("name")
         self.date = kwargs.get("date")
+
+
+class Facility(BaseModel):
+    _table_name = "facility"
+    _columns = ["name", "address", "postcode", "latitude", "longtitude", "business_hours", "pref_id", "city_id"]
+    _db_manager = db_manager
+
+    def __init__(self, **kwargs) -> None:
+        self.id = kwargs.get("id")
+        self.name = kwargs.get("name")
+        self.address = kwargs.get("address")
+        self.postcode = kwargs.get("postcode")
+        self.latitude = kwargs.get("latitude")
+        self.longtitude = kwargs.get("longtitude")
+        self.business_hours = kwargs.get("business_hours")
+
+        self.pref_id = kwargs.get("pref_id")
+        self.city_id = kwargs.get("city_id")
+
+    @classmethod
+    def get_by_name_and_pref(cls, name: str, pref_id: int) -> "Facility":
+        if not name or not pref_id:
+            return None
+
+        query = f"SELECT * FROM {cls.get_table_name()} WHERE name = %s and pref_id = %s"
+        params = (name, pref_id)
+
+        return cls.get_db_results(query, params, fetch_one=True)
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "address": self.address,
+            "postcode": self.postcode,
+            "latitude": self.latitude,
+            "longtitude": self.longtitude,
+            "business_hours": self.business_hours,
+            "pref_id": self.pref_id,
+            "city_id": self.city_id
+        }

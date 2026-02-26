@@ -1,17 +1,16 @@
 import logging
 import json
-from unittest import result
 import pykakasi
 
 from core.settings import PROJECT_ROOT
-from jpost.etl.migrators.base import BaseMigrator
-from jpost.models.administration import Prefecture, City
+from etl.runner import TaskRunner
+from models.administration import Prefecture, City
 
 logging.basicConfig(level=logging.INFO)
 
 
-class CityMigrator(BaseMigrator):
-    MIGRATE_INTERVAL_DAYS = 7
+class CityMigrator(TaskRunner):
+    INTERVAL_DAYS = 7
 
     @classmethod
     def _load_prefectures(cls) -> dict[str, Prefecture]:
@@ -25,7 +24,7 @@ class CityMigrator(BaseMigrator):
         roman = ''.join([item['hepburn'] for item in result]).capitalize()
         return roman
 
-    def migrate(self):
+    def start(self):
         dist_dir = PROJECT_ROOT / "dist"
         city_path = dist_dir / "city.json"
         try:

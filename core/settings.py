@@ -11,14 +11,6 @@ TMP_ROOT = PROJECT_ROOT / "tmp"
 STATIC_ROOT = PROJECT_ROOT / "static"
 TEMPLATES_ROOT = PROJECT_ROOT / "templates"
 
-# Fuke image configuration
-# Physical root where prefecture subdirectories (e.g. Hokkaido/images/...) are stored.
-FUKE_IMAGE_ROOT = Path(os.getenv("FUKE_IMAGE_ROOT", str(TMP_ROOT)))
-# Public URL prefix for serving Fuke images via FastAPI StaticFiles, e.g. "/fuke-images".
-FUKE_IMAGE_URL_PREFIX = os.getenv("FUKE_IMAGE_URL_PREFIX", "/fuke-images")
-# Whether to serve local images; can be turned off when images move to cloud.
-FUKE_IMAGE_ENABLE_LOCAL = os.getenv("FUKE_IMAGE_ENABLE_LOCAL", "1") == "1"
-
 DEFAULT_REQUEST_DELAY = 1.0
 DEFAULT_TIMEOUT = 30
 JAPAN_CITY_BASE_URL = "https://uub.jp/cty/"
@@ -56,3 +48,13 @@ GEO_INFO_VENDORS = [
         "rate_limit": 1
     },
 ]
+
+# Fuke image configuration
+# Physical root where prefecture subdirectories (e.g. Hokkaido/images/...) are stored.
+FUKE_IMAGE_ROOT = Path(os.getenv("FUKE_IMAGE_ROOT", str(TMP_ROOT / "fuke")))
+# Public URL prefix for serving Fuke images via FastAPI StaticFiles, e.g. "/fuke-images".
+FUKE_IMAGE_URL_PREFIX = os.getenv("FUKE_IMAGE_URL_PREFIX", "/fuke-images")
+# Whether to serve local images; can be turned off when images move to cloud.
+FUKE_IMAGE_ENABLE_LOCAL = os.getenv("FUKE_IMAGE_ENABLE_LOCAL", "1") == "1"
+
+MANHOLE_CARD_BASE_URL = "https://www.gk-p.jp/mhcard/"
