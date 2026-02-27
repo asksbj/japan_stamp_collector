@@ -1,5 +1,5 @@
-from jpost.utils.geo_info.generators.nominatim import NominatimGeoGenerator
-from jpost.utils.geo_info.generators.google_maps import GoogleMapsGenerator
+from utils.geo_info.generators.nominatim import NominatimGeoGenerator
+from utils.geo_info.generators.google_maps import GoogleMapsGenerator
 
 
 class GeoInfoFactory:
