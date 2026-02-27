@@ -1,6 +1,6 @@
 import re
 
-from jpost.utils.geo_info.generators.basic import AbstractGeoInfoGenerator
+from utils.geo_info.generators.basic import AbstractGeoInfoGenerator
 
 
 class GoogleMapsGenerator(AbstractGeoInfoGenerator):
@@ -9,7 +9,7 @@ class GoogleMapsGenerator(AbstractGeoInfoGenerator):
 
     
     def __init__(self, **params) -> None:
-        self._jpost_name = params.get("jpost_name")
+        self._facility_name = params.get("facility_name")
         self._location = params.get("location", None)
         self._prefecture_ja = params.get("prefecture_ja")
         super().__init__(**params)
@@ -22,11 +22,11 @@ class GoogleMapsGenerator(AbstractGeoInfoGenerator):
 
     def _get_key(self) -> None:
         if not self._location:
-            self._key = self._jpost_name
+            self._key = self._facility_name
         else:
             location_splits = self._location.split("\n")
             if len(location_splits) != 2:
-                self._key = self._jpost_name
+                self._key = self._facility_name
             else:
                 self._key = location_splits[1]
 

@@ -1,20 +1,19 @@
 import re
 
-from jpost.utils.geo_info.generators.basic import AbstractGeoInfoGenerator
+from utils.geo_info.generators.basic import AbstractGeoInfoGenerator
 
 
 class NominatimGeoGenerator(AbstractGeoInfoGenerator):
     GEO_VENDOR_NAME = "nominatim"
-    # CITY_RE = re.compile()
     POSTCODE_RE = re.compile(r"\d{3}-\d{4}")
 
     def __init__(self, **params) -> None:
-        self._jpost_name = params.get("jpost_name")
+        self._facility_name = params.get("facility_name")
         self._prefecture_ja = params.get("prefecture_ja")
         super().__init__(**params)
 
     def _get_key(self) -> None:
-        self._key = self._jpost_name
+        self._key = self._facility_name
 
     def _generate_params(self) -> dict[str, str]:
         return {

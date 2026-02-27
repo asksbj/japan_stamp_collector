@@ -9,7 +9,7 @@ from core.settings import TMP_ROOT, GEO_INFO_VENDORS
 from core.network import get_proxy_from_env
 from etl.runner import TaskRunner
 from jpost.models.ingestor import FukeIngestorRecords
-from jpost.utils.geo_info.factory import GeoInfoFactory
+from utils.geo_info.factory import GeoInfoFactory
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -40,7 +40,7 @@ class PostOfficeLocationIngestor(TaskRunner):
         address = None
         generator_params = {
             "key": jpost_name,
-            "jpost_name": jpost_name,
+            "facility_name": jpost_name,
             "prefecture_ja": prefecture_ja,
             "location": location
         }

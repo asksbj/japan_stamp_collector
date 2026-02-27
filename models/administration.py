@@ -107,6 +107,16 @@ class Facility(BaseModel):
 
         return cls.get_db_results(query, params, fetch_one=True)
 
+    @classmethod
+    def get_without_geo_info(cls) -> List["Facility"]:
+        query = (
+            f"SELECT * FROM {cls.get_table_name()} "
+            "WHERE (postcode IS NULL OR postcode = '') "
+            "   AND (latitude IS NULL OR latitude = '') "
+            "   AND (longtitude IS NULL OR longtitude = '')"
+        )
+        return cls.get_db_results(query, ())
+
     def to_dict(self):
         return {
             "name": self.name,
