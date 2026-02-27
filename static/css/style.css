@@ -330,6 +330,7 @@ body {
 .meta-value {
   font-size: 0.8rem;
   color: #3b454a;
+  white-space: pre-line;
 }
 
 /* Roadmap strip */
@@ -792,7 +793,7 @@ body {
   overflow: hidden;
   background-color: #ffffff;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
 }
 
