@@ -1,46 +1,14 @@
 from typing import List, Optional
 from fastapi import APIRouter, Query
 
+from api.models import PrefectureOut, CityOut
 from core.settings import FUKE_IMAGE_URL_PREFIX
 from models.administration import City, Prefecture
-from jpost.apis.models import CityOut, FukeItemOut, FukeSearchResponse, PrefectureOut
+from jpost.apis.models import FukeItemOut, FukeSearchResponse
 from jpost.models.jpost import Fuke
 
 
 router = APIRouter(prefix="/api/fuke", tags=["fuke"])
-
-
-@router.get("/prefectures", response_model=List[PrefectureOut])
-def list_prefectures() -> List[PrefectureOut]:
-    print("list_prefectures")
-    prefectures = Prefecture.get_all()
-    prefectures = sorted(prefectures, key=lambda p: p.pref_id or 0)
-    return [
-        PrefectureOut(
-            id=p.id,
-            name=p.name,
-            full_name=p.full_name,
-            en_name=p.en_name,
-            pref_id=p.pref_id,
-        )
-        for p in prefectures
-    ]
-
-
-@router.get("/cities", response_model=List[CityOut])
-def list_cities(pref_id: int = Query(..., gt=0)) -> List[CityOut]:
-    cities = City.get_by_pref_id(pref_id)
-    cities = sorted(cities, key=lambda c: c.id)
-    return [
-        CityOut(
-            id=c.id,
-            name=c.name,
-            kind=c.kind,
-            reading=c.reading,
-            pref_id=c.pref_id,
-        )
-        for c in cities
-    ]
 
 
 @router.get("/search", response_model=FukeSearchResponse)

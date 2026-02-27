@@ -330,6 +330,7 @@ body {
 .meta-value {
   font-size: 0.8rem;
   color: #3b454a;
+  white-space: pre-line;
 }
 
 /* Roadmap strip */
@@ -463,6 +464,10 @@ body {
 
 .collection-dot-fuke {
   background-color: #d26b31;
+}
+
+.collection-dot-manhole-card {
+  background-color: #317cd2;
 }
 
 .collection-name {
@@ -792,7 +797,7 @@ body {
   overflow: hidden;
   background-color: #ffffff;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
 }
 

@@ -192,6 +192,89 @@ class ManholeCardMigrator(TaskRunner):
         return facility_name, address_line
 
     @staticmethod
+    def _split_location_blocks(location: str) -> List[str]:
+        """
+        Split a raw location text into logical blocks.
+
+        Heuristic:
+        - Many cards list multiple distribution places as:
+          <facility/address lines>
+          電話:...
+          <next facility/address lines>
+          電話:...
+          ...
+        - We keep the phone line inside each block and start a new block after it.
+        - If there is no phone line at all, we keep the whole text as a single block.
+        """
+        if not location:
+            return []
+
+        lines = location.split("\n")
+        blocks: List[str] = []
+        current: List[str] = []
+
+        for line in lines:
+            current.append(line)
+            lower = line.lower()
+            if "電話" in line or "tel" in lower:
+                blocks.append("\n".join(current))
+                current = []
+
+        if current:
+            blocks.append("\n".join(current))
+
+        # Drop blocks that are clearly just 問合せ先／問い合わせ先 情報（住所を持たない問い合わせ先）
+        def _is_inquiry_block(text: str) -> bool:
+            ls = [l.strip() for l in text.split("\n") if l.strip()]
+            if not ls:
+                return False
+            first = ls[0]
+            if first.startswith("（問合せ先") or first.startswith("(問合せ先"):
+                return True
+            if first.startswith("（問い合わせ先") or first.startswith("(問い合わせ先"):
+                return True
+            if first.startswith("（問合せ") or first.startswith("(問合せ"):
+                return True
+            if first.startswith("（問い合わせ") or first.startswith("(問い合わせ"):
+                return True
+            return False
+
+        filtered_blocks = [b for b in blocks if not _is_inquiry_block(b)]
+
+        # Fallback: if we somehow produced no block but had input, keep original.
+        if not filtered_blocks and location.strip():
+            return [location]
+        return filtered_blocks
+
+    @classmethod
+    def _parse_locations(cls, location: str, prefecture_name: str) -> List[Tuple[str, str]]:
+        """
+        Parse one location field into zero, one or multiple (facility, address) pairs.
+
+        For backward compatibility, this reuses the existing _parse_location logic on
+        each split block. If no block yields a result, we fall back to trying the
+        whole string once (so existing single-location cases behave as before).
+        """
+        if not location:
+            return []
+
+        results: List[Tuple[str, str]] = []
+        blocks = cls._split_location_blocks(location)
+        for block in blocks:
+            parsed = cls._parse_location(block, prefecture_name)
+            if parsed:
+                results.append(parsed)
+
+        # We only care about entries that have a non-empty address (i.e. can become Facility).
+        results = [(name, addr) for (name, addr) in results if addr]
+        if results:
+            return results
+
+        # Fallback: try the whole text as one block (old behavior).
+        single = cls._parse_location(location, prefecture_name)
+        return [single] if single else []
+
+    @staticmethod
     def _detect_city_id_from_address(
         address: str,
         pref_id: int,
@@ -324,8 +407,8 @@ class ManholeCardMigrator(TaskRunner):
                     changed = True
 
                 location = r.get("location") or ""
-                parsed = self._parse_location(location, prefecture.full_name)
-                if not parsed:
+                parsed_list = self._parse_locations(location, prefecture.full_name)
+                if not parsed_list:
                     unparsed_locations.append(
                         {
                             "prefecture_en": key,
@@ -339,35 +422,18 @@ class ManholeCardMigrator(TaskRunner):
                     )
                     continue
 
-                facility_name, address = parsed
-                if not address:
-                    # Can't parse address reliably → skip facility update and association,
-                    # but keep ManholeCard inserted.
-                    unparsed_locations.append(
-                        {
-                            "prefecture_en": key,
-                            "prefecture_ja": prefecture.full_name,
-                            "city": r.get("city"),
-                            "series": r.get("series"),
-                            "release_date": r.get("release_date"),
-                            "location": location,
-                            "parsed_facility": facility_name,
-                            "reason": "empty_address",
-                        }
-                    )
-                    continue
+                for facility_name, address in parsed_list:
+                    city_id = self._detect_city_id_from_address(address, pref_id, cities_by_pref)
 
-                city_id = self._detect_city_id_from_address(address, pref_id, cities_by_pref)
+                    facility = self._upsert_facility(facility_name, address, pref_id, city_id)
+                    if not facility or not facility.id:
+                        continue
 
-                facility = self._upsert_facility(facility_name, address, pref_id, city_id)
-                if not facility or not facility.id:
-                    continue
+                    if not card or not card.id:
+                        continue
 
-                if not card or not card.id:
-                    continue
-
-                self._link_card_facility(card.id, facility.id)
-                changed = True
+                    self._link_card_facility(card.id, facility.id)
+                    changed = True
 
         if unparsed_locations:
             report_path = root / "migration_report.json"

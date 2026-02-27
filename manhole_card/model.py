@@ -42,6 +42,53 @@ class ManholeCard(BaseModel):
 
         return cls.get_db_results(query, params, fetch_one=True)
 
+    @classmethod
+    def get_by_pref_id(cls, pref_id: int, page: int = 1, page_size: int = 12) -> List["ManholeCard"]:
+        offset = (page - 1) * page_size
+        if not pref_id:
+            return []
+
+        query = f"SELECT * FROM {cls.get_table_name()} WHERE pref_id = %s LIMIT %s OFFSET %s"
+        params = (pref_id, page_size, offset)
+        return cls.get_db_results(query, params)
+    
+    @classmethod
+    def get_by_pref_id_with_total(cls, pref_id: int, page: int = 1, page_size: int = 12) -> tuple[List[dict], int]:
+        offset = (page - 1) * page_size
+        if not pref_id:
+            return [], 0
+
+        count_query = f"SELECT COUNT(*) FROM {cls.get_table_name()} WHERE pref_id = %s"
+        params = (pref_id, )
+
+        count_row = cls.get_db_manager().execute_query(count_query, params, fetch_one=True)
+        total = int(count_row[0]) if count_row else 0
+
+        if total == 0:
+            return [], 0
+
+        data_sql = f"""
+            SELECT
+                m.id,
+                m.name,
+                m.series,
+                m.location_info,
+                m.distribution_time,
+                m.image_url,
+                p.full_name AS prefecture_name,
+                p.en_name AS prefecture_en
+            FROM manhole_card m
+            JOIN prefecture p ON m.pref_id = p.pref_id
+            WHERE p.pref_id = %s
+            ORDER BY id
+            LIMIT %s OFFSET %s
+        """
+        data_params = (pref_id, page_size, offset)
+
+        columns = ["id", "name", "series", "location_info", "distribution_time", "image_url", "prefecture_name", "prefecture_en"]
+        rows = cls.get_db_manager().execute_query(data_sql, tuple(data_params), fetch_all=True)
+        return [dict(zip(columns, row)) for row in rows] if rows else [], total
+
 
 class ManholeCardFacility(BaseModel):
     _table_name = "manhole_card_facility"

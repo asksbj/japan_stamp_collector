@@ -1,7 +1,7 @@
 (() => {
   const { createApp } = window.Vue || {};
   if (!createApp) {
-    console.error("Vue not found for fuke app");
+    console.error("Vue not found for manhole card app");
     return;
   }
 
@@ -9,10 +9,8 @@
     data() {
       return {
         prefectures: [],
-        cities: [],
         selectedPrefId: null,
-        selectedCityId: null,
-        officeName: "",
+        nameKeyword: "",
 
         items: [],
         page: 1,
@@ -21,7 +19,6 @@
 
         loading: {
           prefectures: false,
-          cities: false,
           search: false,
         },
         error: "",
@@ -29,10 +26,10 @@
     },
     computed: {
       loadingAny() {
-        return this.loading.prefectures || this.loading.cities || this.loading.search;
+        return this.loading.prefectures || this.loading.search;
       },
       hasAnyCriteria() {
-        return !!(this.selectedPrefId || this.selectedCityId || (this.officeName && this.officeName.trim()));
+        return !!(this.selectedPrefId || (this.nameKeyword && this.nameKeyword.trim()));
       },
       totalPages() {
         if (this.pageSize <= 0) return 0;
@@ -40,16 +37,6 @@
       },
       hasNextPage() {
         return this.page < this.totalPages;
-      },
-      currentFilterLabel() {
-        const pref = this.prefectures.find((p) => p.pref_id === this.selectedPrefId);
-        const city = this.cities.find((c) => c.id === this.selectedCityId);
-        const parts = [];
-        if (pref) parts.push(`${pref.full_name} (${pref.en_name})`);
-        if (city) parts.push(city.name);
-        if (this.officeName) parts.push(`Office: ${this.officeName}`);
-        if (!parts.length) return "No prefecture / city selected";
-        return parts.join(" · ");
       },
     },
     methods: {
@@ -73,36 +60,8 @@
           this.loading.prefectures = false;
         }
       },
-      async fetchCities() {
-        if (!this.selectedPrefId) {
-          this.cities = [];
-          this.selectedCityId = null;
-          return;
-        }
-        this.loading.cities = true;
-        this.error = "";
-        try {
-          const resp = await fetch(`/api/cities?pref_id=${this.selectedPrefId}`);
-          if (!resp.ok) throw new Error(`Failed to load cities: ${resp.status}`);
-          this.cities = await resp.json();
-          if (!this.cities.some((c) => c.id === this.selectedCityId)) {
-            this.selectedCityId = null;
-          }
-        } catch (e) {
-          console.error(e);
-          this.error = "Failed to load cities list, please try again later.";
-        } finally {
-          this.loading.cities = false;
-        }
-      },
       onPrefectureChange() {
-        // v-model on <select> will keep value as string; normalize to number
         this.selectedPrefId = this.selectedPrefId ? Number(this.selectedPrefId) : null;
-        this.page = 1;
-        this.fetchCities();
-      },
-      onCityChange() {
-        this.selectedCityId = this.selectedCityId ? Number(this.selectedCityId) : null;
         this.page = 1;
       },
       async search() {
@@ -111,14 +70,13 @@
         try {
           const searchParams = new URLSearchParams();
           if (this.selectedPrefId) searchParams.set("pref_id", String(this.selectedPrefId));
-          if (this.selectedCityId) searchParams.set("city_id", String(this.selectedCityId));
-          if (this.officeName && this.officeName.trim()) {
-            searchParams.set("jpost_name", this.officeName.trim());
+          if (this.nameKeyword && this.nameKeyword.trim()) {
+            searchParams.set("name", this.nameKeyword.trim());
           }
           searchParams.set("page", String(this.page));
           searchParams.set("page_size", String(this.pageSize));
 
-          const resp = await fetch(`/api/fuke/search?${searchParams.toString()}`);
+          const resp = await fetch(`/api/manhole-card/search?${searchParams.toString()}`);
           if (!resp.ok) throw new Error(`Failed to search: ${resp.status}`);
           const data = await resp.json();
 
@@ -128,7 +86,7 @@
           this.pageSize = data.page_size || this.pageSize;
         } catch (e) {
           console.error(e);
-          this.error = "Failed to search scenic stamp data, please try again later.";
+          this.error = "Failed to search manhole card data, please try again later.";
         } finally {
           this.loading.search = false;
         }
@@ -139,8 +97,7 @@
       },
       resetFilter() {
         this.selectedPrefId = null;
-        this.selectedCityId = null;
-        this.officeName = "";
+        this.nameKeyword = "";
         this.page = 1;
         this.total = 0;
         this.items = [];
@@ -162,6 +119,6 @@
     },
   });
 
-  app.mount("#fuke-app");
+  app.mount("#manhole-card-app");
 })();
 

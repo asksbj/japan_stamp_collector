@@ -58,3 +58,6 @@ FUKE_IMAGE_URL_PREFIX = os.getenv("FUKE_IMAGE_URL_PREFIX", "/fuke-images")
 FUKE_IMAGE_ENABLE_LOCAL = os.getenv("FUKE_IMAGE_ENABLE_LOCAL", "1") == "1"
 
 MANHOLE_CARD_BASE_URL = "https://www.gk-p.jp/mhcard/"
+MANHOLE_CARD_IMAGE_ROOT = Path(os.getenv("MANHOLE_CARD_IMAGE_ROOT", str(TMP_ROOT / "manhole_card")))
+MANHOLE_CARD_IMAGE_URL_PREFIX = os.getenv("MANHOLE_CARD_IMAGE_URL_PREFIX", "/manhole-card-images")
+MANHOLE_CARD_IMAGE_ENABLE_LOCAL = os.getenv("MANHOLE_CARD_IMAGE_ENABLE_LOCAL", "1") == "1"

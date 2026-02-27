@@ -44,14 +44,10 @@ class ManholeCardIngestor(TaskRunner):
     def _clean_location(td) -> str:
         if td is None:
             return ""
-        parts = []
-        for text in td.stripped_strings:
-            s = str(text)
-            lower = s.lower()
-            if "電話" in s or "tel" in lower:
-                break
-            parts.append(s)
-        return "\n".join(parts)
+        # Collect all text lines in the location cell, including電話/TELや問い合わせ先の情報も含めて返す
+        # 元の実装では「電話」や「TEL」を含む行以降を切り捨てていたため、
+        # ページに複数の配布場所・問い合わせ先が書かれているケースで後続行が欠落していた。
+        return "\n".join(str(text) for text in td.stripped_strings)
 
     @staticmethod
     def _extract_distribution_time(td) -> str:
