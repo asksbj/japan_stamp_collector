@@ -2,6 +2,7 @@ from etl.scheduler import TaskScheduler
 from models.administration import Prefecture
 from manhole_card.etl.datatype import TaskType
 from manhole_card.etl.ingestor import ManholeCardIngestor
+from manhole_card.etl.migrator import ManholeCardMigrator
 
 
 class ManholeCardTaskScheduler(TaskScheduler):
@@ -11,7 +12,9 @@ class ManholeCardTaskScheduler(TaskScheduler):
         TaskType.INGESTOR_MANHOLE_CARD: ManholeCardIngestor,
     }
 
-    TASK_GLOBAL_RUNNERS = {}
+    TASK_GLOBAL_RUNNERS = {
+        TaskType.MIGRATOR_MANHOLE_CARD: ManholeCardMigrator
+    }
 
     TASK_RUNNERS = {**TASK_OWNER_RUNNERS, **TASK_GLOBAL_RUNNERS}
 

@@ -108,6 +108,7 @@ class FukeMigrator(TaskRunner):
         else:
             jpost = Facility(name=jpost_name, pref_id=pref_id)
 
+        jpost.type = Facility.FacilityType.JPOST.value
         jpost.address = address
         jpost.postcode = postcode
         jpost.latitude = latitude

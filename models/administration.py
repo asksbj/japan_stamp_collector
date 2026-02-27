@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import List
 
 from core.database import db_manager
@@ -76,12 +77,17 @@ class Holiday(BaseModel):
 
 class Facility(BaseModel):
     _table_name = "facility"
-    _columns = ["name", "address", "postcode", "latitude", "longtitude", "business_hours", "pref_id", "city_id"]
+    _columns = ["name", "type", "address", "postcode", "latitude", "longtitude", "business_hours", "pref_id", "city_id"]
     _db_manager = db_manager
+
+    class FacilityType(Enum):
+        JPOST = "jpost"
+        MANHOLE_CARD = "manhole_card"
 
     def __init__(self, **kwargs) -> None:
         self.id = kwargs.get("id")
         self.name = kwargs.get("name")
+        self.type = kwargs.get("type")
         self.address = kwargs.get("address")
         self.postcode = kwargs.get("postcode")
         self.latitude = kwargs.get("latitude")
@@ -104,6 +110,7 @@ class Facility(BaseModel):
     def to_dict(self):
         return {
             "name": self.name,
+            "type": self.type,
             "address": self.address,
             "postcode": self.postcode,
             "latitude": self.latitude,
