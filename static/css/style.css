@@ -862,6 +862,12 @@ body {
   font-size: 0.8rem;
 }
 
+.fuke-faq-section {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed #e1d2be;
+}
+
 .pagination-status {
   display: inline-flex;
   gap: 0.4rem;
