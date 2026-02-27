@@ -44,6 +44,21 @@
         </div>
       </a>
 
+      <a href="{{ url_for('manhole_card_page') }}" class="collection-card collection-card-active">
+        <div class="collection-thumb">
+          <img src="{{ url_for('static', path='img/manhole_sample.png') }}" alt="Manhole cards sample" />
+        </div>
+        <div class="collection-info">
+          <div class="collection-title-row">
+            <span class="collection-dot collection-dot-manhole-card"></span>
+            <span class="collection-name">Manhole Cards</span>
+          </div>
+          <p class="collection-text">
+            Manhole cards.
+          </p>
+        </div>
+      </a>
+
       <div class="collection-card collection-card-disabled">
         <div class="collection-thumb">
           <img src="{{ url_for('static', path='img/eki_stamp_sample.png') }}" alt="Station stamps sample" />
@@ -56,22 +71,6 @@
           </div>
           <p class="collection-text">
             Station stamps organised by railway line and area, designed for itinerary-style browsing.
-          </p>
-        </div>
-      </div>
-
-      <div class="collection-card collection-card-disabled">
-        <div class="collection-thumb">
-          <img src="{{ url_for('static', path='img/manhole_sample.png') }}" alt="Manhole cards sample" />
-        </div>
-        <div class="collection-info">
-          <div class="collection-title-row">
-            <span class="collection-dot"></span>
-            <span class="collection-name">Manhole Cards</span>
-            <span class="collection-tag">Coming soon</span>
-          </div>
-          <p class="collection-text">
-            Manhole cards.
           </p>
         </div>
       </div>

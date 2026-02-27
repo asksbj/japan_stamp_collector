@@ -466,6 +466,10 @@ body {
   background-color: #d26b31;
 }
 
+.collection-dot-manhole-card {
+  background-color: #317cd2;
+}
+
 .collection-name {
   font-size: 0.9rem;
   font-weight: 600;

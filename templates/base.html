@@ -65,16 +65,16 @@
           >
             <span>Fukei-in</span>
           </a>
-          <button class="nav-pill nav-pill-muted" type="button" disabled>
-            <span class="nav-pill-label">Station Stamps</span>
-            <span class="nav-pill-tag">Coming soon</span>
-          </button>
           <a
             href="{{ url_for('manhole_card_page') }}"
             class="nav-link {% if request.url.path.startswith('/manhole_card') %}nav-link-active{% endif %}"
           >
             <span>Manhole Cards</span>
           </a>
+          <button class="nav-pill nav-pill-muted" type="button" disabled>
+            <span class="nav-pill-label">Station Stamps</span>
+            <span class="nav-pill-tag">Coming soon</span>
+          </button>
           <a href="#" class="nav-link nav-link-ghost" aria-disabled="true">
             <i class="fa-regular fa-user"></i>
             <span>My collection (coming soon)</span>
