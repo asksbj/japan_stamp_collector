@@ -75,7 +75,9 @@ CREATE TABLE IF NOT EXISTS manhole_card (
     release_date VARCHAR(16),
     location_info VARCHAR(1000),
     distribution_time VARCHAR(1000),
-    image_url VARCHAR(255)
+    image_url VARCHAR(255),
+    pref_id INT,
+    FOREIGN KEY (pref_id) REFERENCES prefecture(pref_id)
 );
 
 CREATE TABLE IF NOT EXISTS manhole_card_facility (

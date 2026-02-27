@@ -237,7 +237,7 @@ class ManholeCardMigrator(TaskRunner):
             return None
         return facility
 
-    def _upsert_manhole_card(self, record: dict) -> Optional[ManholeCard]:
+    def _upsert_manhole_card(self, pref_id: int, record: dict) -> Optional[ManholeCard]:
         name = (record.get("city") or "").strip()
         series = (record.get("series") or "").strip()
         release_date = (record.get("release_date") or "").strip()
@@ -258,6 +258,7 @@ class ManholeCardMigrator(TaskRunner):
         card.location_info = location_info
         card.distribution_time = distribution_time
         card.image_url = image_url
+        card.pref_id = pref_id
 
         success = card.save()
         if not success:
@@ -318,7 +319,7 @@ class ManholeCardMigrator(TaskRunner):
 
             for r in records:
                 # Always insert/update ManholeCard first; facility/linking is best-effort.
-                card = self._upsert_manhole_card(r)
+                card = self._upsert_manhole_card(pref_id, r)
                 if card:
                     changed = True
 

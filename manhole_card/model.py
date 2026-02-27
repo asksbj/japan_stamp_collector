@@ -7,7 +7,7 @@ from models.base import BaseModel
 
 class ManholeCard(BaseModel):
     _table_name = "manhole_card"
-    _columns = ["name", "series", "release_date", "location_info", "distribution_time", "image_url"]
+    _columns = ["name", "series", "release_date", "location_info", "distribution_time", "image_url", "pref_id"]
     _db_manager = db_manager
 
     def __init__(self, **kwargs) -> None:
@@ -18,6 +18,8 @@ class ManholeCard(BaseModel):
         self.location_info = kwargs.get("location_info")
         self.distribution_time = kwargs.get("distribution_time")
         self.image_url = kwargs.get("image_url")
+
+        self.pref_id = kwargs.get("pref_id")
 
     def location_detail(self) -> List[dict]:
         facilities = ManholeCardFacility.get_facilities(self.id)
