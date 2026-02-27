@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block head_extra %}
+  <script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
+{% endblock head_extra %}
+
+{% block content %}
+{% raw %}
+  <section class="layout-grid layout-grid-fuke">
+    <aside class="side-column">
+      <div class="side-card">
+        <h2 class="side-heading">マンホールカード · Manhole Cards</h2>
+        <p class="side-intro">
+          Official website: <a href="https://www.gk-p.jp/mhcard/" target="_blank">https://www.gk-p.jp/mhcard/</a>
+        </p>
+      </div>
+    </aside>
+
+    <section class="main-column">
+      <div id="manhole-card-app" class="fuke-app-root">
+        <section class="filter-strip">
+          <div class="filter-header">
+            <h1 class="filter-title">Search Manhole Cards</h1>
+            <p class="filter-subtitle">Please use your browser's built-in translation feature for the displayed results.</p>
+          </div>
+          <div class="filter-controls">
+            <div class="filter-controls-row filter-controls-row-top">
+              <div class="filter-control">
+                <label for="prefecture-select" class="filter-label">
+                  都道府県 Prefecture
+                </label>
+                <div class="filter-select-wrapper" :class="{ 'is-loading': loading.prefectures }">
+                  <select
+                    id="prefecture-select"
+                    v-model="selectedPrefId"
+                    @change="onPrefectureChange"
+                  >
+                    <option :value="null">Select prefecture…</option>
+                    <option
+                      v-for="pref in prefectures"
+                      :key="pref.id"
+                      :value="pref.pref_id"
+                    >
+                      {{ padPref(pref.pref_id) }} ｜ {{ pref.full_name }} ({{ pref.en_name }})
+                    </option>
+                  </select>
+                  <span class="filter-select-icon">
+                    <i class="fa-solid fa-chevron-down"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="filter-control filter-control-actions">
+                <button
+                  class="btn-primary btn-sm"
+                  type="button"
+                  @click="applyFilter"
+                  :disabled="loading.search || !hasAnyCriteria"
+                >
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <span>Search</span>
+                </button>
+                <button
+                  class="btn-ghost btn-sm"
+                  type="button"
+                  @click="resetFilter"
+                  :disabled="loadingAny"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="results-section">
+          <div v-if="loading.search" class="results-state">
+            <div class="results-spinner"></div>
+            <p>Loading manhole card data from local database…</p>
+          </div>
+          <div v-else-if="error" class="results-state results-state-error">
+            <p>{{ error }}</p>
+          </div>
+          <div v-else-if="!items.length" class="results-state">
+            <p>No results.</p>
+          </div>
+          <div v-else class="results-grid">
+            <article
+              v-for="item in items"
+              :key="item.id"
+              class="fuke-card"
+            >
+              <div class="fuke-card-header">
+                <div class="fuke-card-title">
+                  <span class="fuke-name">{{ item.name }}</span>
+                  <span class="fuke-tag">
+                    {{ item.series }}
+                  </span>
+                </div>
+                <div class="fuke-card-meta">
+                  <span class="meta-chip">
+                    <i class="fa-regular fa-compass"></i>
+                    <span>{{ item.prefecture_name }}</span>
+                  </span>
+                  <span v-if="item.release_date" class="meta-chip">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span>発行 {{ item.release_date }}</span>
+                  </span>
+                </div>
+              </div>
+
+              <div class="fuke-card-body">
+                <div class="fuke-card-image" v-if="item.image_url">
+                  <img :src="item.image_url" :alt="item.name" loading="lazy" />
+                </div>
+                <div class="fuke-card-details">
+                  <p v-if="item.location_info" class="fuke-description">
+                    <span class="meta-label">配布場所: </span><br>
+                    <span class="meta-value">{{ item.location_info }}</span>
+                  </p>
+                  <p v-if="item.distribution_time" class="fuke-author">
+                    <span class="meta-label">配布時間: </span><br>
+                    <span class="meta-value">{{ item.distribution_time }}</span>
+                  </p>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div v-if="items.length" class="results-pagination">
+            <button
+              class="btn-ghost btn-sm"
+              type="button"
+              @click="prevPage"
+              :disabled="page <= 1 || loading.search"
+            >
+              <i class="fa-solid fa-arrow-left-long"></i>
+              <span>Previous page</span>
+            </button>
+            <span class="pagination-status">
+              <span class="meta-label">Current page</span>
+              <span class="meta-value">{{ page }}</span>
+            </span>
+            <button
+              class="btn-ghost btn-sm"
+              type="button"
+              @click="nextPage"
+              :disabled="!hasNextPage || loading.search"
+            >
+              <span>Next page</span>
+              <i class="fa-solid fa-arrow-right-long"></i>
+            </button>
+          </div>
+        </section>
+      </div>
+    </section>
+  </section>
+{% endraw %}
+{% endblock content %}
+
+{% block body_scripts %}
+  <script src="{{ url_for('static', path='js/manhole_card.js') }}"></script>
+{% endblock body_scripts %}
+
