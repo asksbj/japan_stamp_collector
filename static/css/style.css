@@ -565,7 +565,7 @@ body {
 
 .filter-title {
   margin: 0 0 0.25rem 0;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   letter-spacing: 0.08em;
 }
 
@@ -860,6 +860,12 @@ body {
   justify-content: center;
   gap: 0.75rem;
   font-size: 0.8rem;
+}
+
+.fuke-faq-section {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed #e1d2be;
 }
 
 .pagination-status {
